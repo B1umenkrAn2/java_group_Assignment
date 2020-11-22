@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE resources PUBLIC "-//GlassFish.org//DTD GlassFish Application Server 3.1 Resource Definitions//EN" "http://glassfish.org/dtds/glassfish-resources_1_5.dtd">
+<resources>
+    <jdbc-connection-pool
+        datasource-classname="org.h2.jdbcx.JdbcDataSource" 
+        res-type="javax.sql.DataSource" 
+        name="customersConnectionPool"> 
+        <property name="User" value="sa"/> 
+        <property name="Password" value="password"/>
+        <!-- <property name="URL" value="jdbc:h2:mem:20fcustomers"/> -->
+        <property name="URL" value="jdbc:h2:tcp://localhost:12345/~/20fGroupProject"/>
+    </jdbc-connection-pool>
+    <jdbc-resource jndi-name="java:app/jdbc/customers" pool-name="customersConnectionPool">
+        <description>DataSource for ACME Customers</description>
+    </jdbc-resource>
+ </resources>

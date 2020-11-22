@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+  <persistence-unit name="20f-groupProject-PU" transaction-type="JTA">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <jta-data-source>java:app/jdbc/customers</jta-data-source>
+    <exclude-unlisted-classes>false</exclude-unlisted-classes>
+    <properties>
+        <!--
+         Possible values:
+          "none":            No schema creation or deletion will take place
+          "create":          Creates the schema necessary for your entities.
+                           The artifacts will remain unchanged after application redeployment.
+          "drop-and-create": Any artifacts in the database will be deleted, and the provider will
+                           create the database artifacts on deployment.
+          "drop":            Any artifacts in the database will be deleted on application deployment.
+        -->
+      <property name="javax.persistence.schema-generation.database.action" value="create"/>
+      <!-- <property name="javax.persistence.sql-load-script-source" value="META-INF/Scripts/init.sql"/> -->
+      <!-- eclipselink specific props -->
+      <property name="eclipselink.target-database" value="org.eclipse.persistence.platform.database.H2Platform" />
+      <property name="eclipselink.target-server" value="Glassfish" />
+      <property name="eclipselink.logging.logger" value="ServerLogger"/>
+      <property name="eclipselink.logging.level" value="FINE" />
+      <property name="eclipselink.logging.parameters" value="true" />
+      <property name="eclipselink.logging.level.sql" value="FINEST"/>
+      <property name="eclipselink.logging.level.connection" value="FINE"/>
+    </properties>
+  </persistence-unit>
+</persistence>

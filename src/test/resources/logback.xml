@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<configuration>
+  <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+      <!-- reset all previous level configurations of all j.u.l. loggers -->
+      <resetJUL>true</resetJUL>
+  </contextListener>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",UTC} %highlight(%-5level) [%-10.10t] %cyan(%logger{36}) - %msg%ex{full}%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger level="debug" additivity="false" name="org.glassfish.jersey.logging.LoggingFeature">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+  <!-- Jersey is very noisy when LoggingFeature is turned on -->
+  <logger level="warn" additivity="false" name="org.glassfish.jersey.client">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+  <logger level="warn" additivity="false" name="org.glassfish.jersey.internal">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+  <logger level="warn" additivity="false" name="org.glassfish.jersey.inject">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+  <logger level="warn" additivity="false" name="org.glassfish.jersey.process.internal">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+  <logger level="warn" additivity="false" name="sun.net.www">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+
+  <logger level="debug" additivity="false" name="com.algonquincollege.cst8277">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+
+  <root level="warn">
+    <appender-ref ref="CONSOLE" />
+  </root>
+
+</configuration>

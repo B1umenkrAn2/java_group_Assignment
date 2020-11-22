@@ -1,0 +1,219 @@
+openapi: 3.0.0
+info:
+    description: "This is the REST 'contract' for the Order System"
+    version: 1.0.0
+    title: "(20F) Group Project - Order System"
+    contact:
+        name: "(20F) CST 8277"
+        email: "normanm@algonquincollege.com"
+        url: "https://brightspace.algonquincollege.com/d2l/home/279461"
+servers:
+    -
+        url: "http://localhost:{port}/{contextRoot}/{basePath}"
+        variables:
+            port: {
+                default: "8080"
+            }
+            contextRoot: {
+                default: "rest-orderSystem"
+            }
+            basePath: {
+                default: "api/v1"
+            }
+
+security:
+    -
+        basicAuth: []
+
+components:
+    securitySchemes:
+        basicAuth:
+            type: http
+            scheme: basic
+
+    parameters:
+        idPathParam:
+            in: path
+            name: id
+            required: true
+            schema: {
+                type: integer,
+                format: int64,
+                description: "a resource's id",
+                example: 1
+            }
+
+    responses:
+        ForbiddenError:
+            description: "Access to the specified resource has been forbidden"
+        UnauthorizedAdminError:
+            description: "request requires HTTP authentication for ADMIN_ROLE"
+        UnauthorizedUserError:
+            description: "request requires HTTP authentication for USER_ROLE"
+        NotFound:
+            description: "The specified resource was not found"
+
+    schemas:
+        PojoBase:
+            type: object
+            required: [id, version]
+            properties: {
+                id: {
+                    description: "id of entity",
+                    type: integer
+                },
+                version: {
+                    description: "version (OptLock) of entity",
+                    type: integer
+                },
+                createdDate: {
+                    description: "creation timestamp of entity",
+                    type: string,
+                    format: date-time
+                    },
+                updatedDate: {
+                    description: "last-updatd timestamp of entity",
+                    type: string,
+                    format: date-time
+                }
+            }
+
+        Customer:
+            description: "(20F) Group Project - Customer entity"
+            type: object
+            allOf: [{
+                $ref: "#/components/schemas/PojoBase"
+            }]
+            properties: {
+                firstName: {type: string, description: "First Name of the customer", example: John},
+                lastName: {type: string, description: "Last Name of the customer", example: Doe},
+                email: {type: string, description: "Email of the customer", example: John.Doe@gmail.com},
+                phoneNumber: {type: string, description: "Phone # of the customer", example: '+1.613.555.1212'},
+                billingAddress: {$ref: '#/components/schemas/Address'},
+                shippingAddress: {$ref: '#/components/schemas/Address'}
+            }
+        CustomersList:
+            description: "list of customers"
+            type: array
+            items: {
+                $ref: "#/components/schemas/Customer"
+            }
+
+        Address:
+            description: "(20W) Group Project - Address entity"
+            discriminator:
+              propertyName: type
+            required: [type]
+            type: object
+            allOf: [{
+                $ref: "#/components/schemas/PojoBase"
+            }]
+            properties: {
+                street: {type: string, description: "Location of Address (street)", example: "1385 Woodroffe Avenue"},
+                city: {type: string, description: "Location of Address (city)", example: "Ottawa"},
+                state: {type: string, description: "Location of Address (State/Province)", example: "ON"},
+                country: {type: string, description: "Location of Address (country)", example: "Canada"},
+                postal: {type: string, description: "Postal Code", example: "K2G 1V8"}
+            }
+        BillingAddress:
+            allOf: [{
+                $ref: "#/components/schemas/Address"  # BillingAddress has all properties of Address
+            }]
+            properties: { # extra properties only for BillingAddress
+                alsoShipping: {type: boolean, description: "indicates that this BillingAddress is also the customer's ShippingAddress"}
+            }
+        ShippingAddress:
+            allOf: [{
+                $ref: "#/components/schemas/Address"  # ShippingAddress has all properties of Address
+            }]
+
+paths:
+    /customer:
+        get:
+            responses: {
+                "200": {
+                    description: "Ok (Successful operation)",
+                    content: {
+                        application/json: {
+                            schema: {
+                                $ref: "#/components/schemas/CustomersList"
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    $ref: "#/components/responses/UnauthorizedAdminError"
+                }
+            }
+
+        post:
+            requestBody: {
+                description: "new customer to be added to Db",
+                required: true,
+                content: {
+                    application/json: {
+                        schema: {
+                            $ref: "#/components/schemas/Customer"
+                        }
+                    }
+                }
+            }
+            responses: {
+                "200": {
+                    description: "Ok (Successful operation)",
+                    content: {
+                        application/json: {
+                            schema: {
+                                $ref: "#/components/schemas/CustomersList"
+                            }
+                        }
+                    }
+                }
+            }
+
+    /customer/{id}:
+        get:
+            summary: "Retrieves a customer by its id"
+            parameters: [{
+                $ref: "#/components/parameters/idPathParam"
+            }]
+            responses: {
+                "200": {
+                    description: "Ok (Successful operation)",
+                    content: {
+                        application/json: {
+                            schema: {
+                                $ref: "#/components/schemas/Customer"
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    $ref: "#/components/responses/UnauthorizedUserError"
+                },
+                "403": {
+                    $ref: "#/components/responses/ForbiddenError"
+                },
+                "404": {
+                    $ref: "#/components/responses/NotFound"
+                }
+            }
+        delete:
+            summary: "Removes a customer by its id"
+            parameters: [{
+                $ref: "#/components/parameters/idPathParam"
+            }]
+            responses: {
+                "204": {
+                    description: "Ok (No content, successful operation)"
+                },
+                "401": {
+                    $ref: "#/components/responses/UnauthorizedUserError"
+                },
+                "403": {
+                    $ref: "#/components/responses/ForbiddenError"
+                },
+                "404": {
+                    $ref: "#/components/responses/NotFound"
+                }
+            }
