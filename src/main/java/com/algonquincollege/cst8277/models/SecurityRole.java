@@ -14,10 +14,14 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import javax.persistence.*;
+
 
 /**
  * Role class used for (JSR-375) Java EE Security authorization/authentication
  */
+@Entity
+@Table(name = "SECURITY_ROLE")
 public class SecurityRole implements Serializable {
     /** explicit set serialVersionUID */
     private static final long serialVersionUID = 1L;
@@ -31,21 +35,23 @@ public class SecurityRole implements Serializable {
     public SecurityRole() {
         super();
     }
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ROLE_ID")
     public int getId() {
         return id;
     }
     public void setId(int id) {
         this.id = id;
     }
-
+    @Column(name = "ROLENAME")
     public String getRoleName() {
         return roleName;
     }
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
-
+    @ManyToMany(mappedBy = "roles")
     @JsonInclude(Include.NON_NULL)
     public Set<SecurityUser> getUsers() {
         return users;

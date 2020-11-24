@@ -20,6 +20,7 @@ import javax.persistence.*;
 */
 @Entity
 @Table(name = "CUSTOMER")
+@AttributeOverride(name = "id", column = @Column(name = "CUSTOMER_ID"))
 public class CustomerPojo extends PojoBase implements Serializable {
     private static final long serialVersionUID = 1L;
 

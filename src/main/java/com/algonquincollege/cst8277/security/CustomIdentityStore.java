@@ -94,7 +94,7 @@ public class CustomIdentityStore implements IdentityStore {
         if (!roles.isEmpty()) {
             roleNames = roles
                 .stream()
-                .map(s -> s.getRoleName())
+                .map(SecurityRole::getRoleName)
                 .collect(Collectors.toSet());
         }
         return roleNames;

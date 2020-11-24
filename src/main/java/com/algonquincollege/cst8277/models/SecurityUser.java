@@ -3,7 +3,7 @@
  * Course materials (20F) CST 8277
  *
  * @author (original) Mike Norman
- * 
+ *
  * update by : I. Am. A. Student 040nnnnnnn
  */
 package com.algonquincollege.cst8277.models;
@@ -19,18 +19,23 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import javax.persistence.*;
+
 /**
  * User class used for (JSR-375) Java EE Security authorization/authentication
  */
-
+@Entity
+@Table(name = "SECURITY_USER")
 public class SecurityUser implements Serializable, Principal {
-    /** explicit set serialVersionUID */
+    /**
+     * explicit set serialVersionUID
+     */
     private static final long serialVersionUID = 1L;
 
     public static final String USER_FOR_OWNING_CUST_QUERY =
-        "userForOwningCust";
+            "userForOwningCust";
     public static final String SECURITY_USER_BY_NAME_QUERY =
-        "userByName";
+            "userByName";
 
     protected int id;
     protected String username;
@@ -42,40 +47,56 @@ public class SecurityUser implements Serializable, Principal {
         super();
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "USER_ID")
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
 
+    @Column(name = "USERNAME")
     public String getUsername() {
         return username;
     }
+
     public void setUsername(String username) {
         this.username = username;
     }
 
+    @Column(name = "PWHASH")
     @JsonIgnore
     public String getPwHash() {
         return pwHash;
     }
+
     public void setPwHash(String pwHash) {
         this.pwHash = pwHash;
     }
-    
+
+    @ManyToMany(targetEntity = SecurityRole.class, cascade = CascadeType.PERSIST)
+    @JoinTable(name = "SECURITY_USER_SECURITY_ROLE",
+            joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID"),
+            inverseJoinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "ROLE_ID"))
     @JsonInclude(Include.NON_NULL)
     @JsonSerialize(using = SecurityRoleSerializer.class)
     public Set<SecurityRole> getRoles() {
         return roles;
     }
+
     public void setRoles(Set<SecurityRole> roles) {
         this.roles = roles;
     }
 
+    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE})
+    @JoinColumn(name = "CUSTOMER_ID")
     public CustomerPojo getCustomer() {
         return cust;
     }
+
     public void setCustomer(CustomerPojo cust) {
         this.cust = cust;
     }
@@ -106,7 +127,7 @@ public class SecurityUser implements Serializable, Principal {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        SecurityUser other = (SecurityUser)obj;
+        SecurityUser other = (SecurityUser) obj;
         if (id != other.id) {
             return false;
         }

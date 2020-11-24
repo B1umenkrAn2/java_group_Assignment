@@ -10,18 +10,7 @@
 package com.algonquincollege.cst8277.ejb;
 
 import static com.algonquincollege.cst8277.models.SecurityRole.ROLE_BY_NAME_QUERY;
-import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_KEY_SIZE;
-import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_PROPERTY_ALGORITHM;
-import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_PROPERTY_ITERATIONS;
-import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_SALT_SIZE;
-import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_USER_PASSWORD;
-import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_USER_PREFIX;
-import static com.algonquincollege.cst8277.utils.MyConstants.PARAM1;
-import static com.algonquincollege.cst8277.utils.MyConstants.PROPERTY_ALGORITHM;
-import static com.algonquincollege.cst8277.utils.MyConstants.PROPERTY_ITERATIONS;
-import static com.algonquincollege.cst8277.utils.MyConstants.PROPERTY_KEYSIZE;
-import static com.algonquincollege.cst8277.utils.MyConstants.PROPERTY_SALTSIZE;
-import static com.algonquincollege.cst8277.utils.MyConstants.USER_ROLE;
+import static com.algonquincollege.cst8277.utils.MyConstants.*;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -54,10 +43,10 @@ import com.algonquincollege.cst8277.models.StorePojo;
 @Singleton
 public class CustomerService implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    public static final String CUSTOMER_PU = "acmeCustomers-PU";
 
-    @PersistenceContext(name = CUSTOMER_PU)
+//    public static final String CUSTOMER_PU = "acmeCustomers-PU";
+
+    @PersistenceContext(name = PU_NAME)
     protected EntityManager em;
 
     @Inject
