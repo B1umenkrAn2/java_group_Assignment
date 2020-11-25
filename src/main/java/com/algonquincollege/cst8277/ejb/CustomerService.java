@@ -3,7 +3,7 @@
  * Course materials (20F) CST 8277
  *
  * @author (original) Mike Norman
- * 
+ *
  * update by : I. Am. A. Student 040nnnnnnn
  *
  */
@@ -29,13 +29,7 @@ import javax.persistence.criteria.Root;
 import javax.security.enterprise.identitystore.Pbkdf2PasswordHash;
 import javax.transaction.Transactional;
 
-import com.algonquincollege.cst8277.models.AddressPojo;
-import com.algonquincollege.cst8277.models.CustomerPojo;
-import com.algonquincollege.cst8277.models.ProductPojo;
-import com.algonquincollege.cst8277.models.SecurityRole;
-import com.algonquincollege.cst8277.models.SecurityUser;
-import com.algonquincollege.cst8277.models.ShippingAddressPojo;
-import com.algonquincollege.cst8277.models.StorePojo;
+import com.algonquincollege.cst8277.models.*;
 
 /**
  * Stateless Singleton Session Bean - CustomerService
@@ -51,22 +45,98 @@ public class CustomerService implements Serializable {
 
     @Inject
     protected Pbkdf2PasswordHash pbAndjPasswordHash;
-    
-    //TODO
+
 
     public List<CustomerPojo> getAllCustomers() {
-        return null;
+        try {
+            em.getTransaction().begin();
+            TypedQuery<CustomerPojo> selectCFromCustomerPojo = em.createQuery("select c from CustomerPojo c ", CustomerPojo.class);
+            List<CustomerPojo> resultList = selectCFromCustomerPojo.getResultList();
+            em.getTransaction().commit();
+            return resultList;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     public CustomerPojo getCustomerById(int custPK) {
-        return null;
+        try {
+            return em.find(CustomerPojo.class, custPK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
-    
+
     @Transactional
     public CustomerPojo persistCustomer(CustomerPojo newCustomer) {
-        return null;
+        try {
+            em.getTransaction().begin();
+            em.persist(newCustomer);
+            em.getTransaction().commit();
+            return newCustomer;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-    
+
+    @Transactional
+    public CustomerPojo updateCustomerFirstName(int id, String newFName) {
+        try {
+            CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
+            customerPojo.setFirstName(newFName);
+            em.merge(customerPojo);
+            return customerPojo;
+        } catch (Exception e) {
+            e.getStackTrace();
+            return null;
+        }
+    }
+
+    @Transactional
+    public CustomerPojo updateCustomerLastName(int id, String newLName) {
+        try {
+            CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
+            customerPojo.setLastName(newLName);
+            em.merge(customerPojo);
+            return customerPojo;
+        } catch (Exception e) {
+            e.getStackTrace();
+            return null;
+        }
+    }
+
+    @Transactional
+    public CustomerPojo updateCustomerEmail(int id, String newEmail) {
+        try {
+            CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
+            customerPojo.setEmail(newEmail);
+            em.merge(customerPojo);
+            return customerPojo;
+        } catch (Exception e) {
+            e.getStackTrace();
+            return null;
+        }
+    }
+
+    @Transactional
+    public CustomerPojo updateCustomerPhone(int id, String newPhone) {
+        try {
+            CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
+            customerPojo.setPhoneNumber(newPhone);
+            em.merge(customerPojo);
+            return customerPojo;
+        } catch (Exception e) {
+            e.getStackTrace();
+            return null;
+        }
+    }
+
+
     @Transactional
     public void buildUserForNewCustomer(CustomerPojo newCustomerWithIdTimestamps) {
         SecurityUser userForNewCustomer = new SecurityUser();
@@ -81,7 +151,7 @@ public class CustomerService implements Serializable {
         userForNewCustomer.setPwHash(pwHash);
         userForNewCustomer.setCustomer(newCustomerWithIdTimestamps);
         SecurityRole userRole = em.createNamedQuery(ROLE_BY_NAME_QUERY,
-            SecurityRole.class).setParameter(PARAM1, USER_ROLE).getSingleResult();
+                SecurityRole.class).setParameter(PARAM1, USER_ROLE).getSingleResult();
         userForNewCustomer.getRoles().add(userRole);
         userRole.getUsers().add(userForNewCustomer);
         em.persist(userForNewCustomer);
@@ -92,8 +162,7 @@ public class CustomerService implements Serializable {
         CustomerPojo updatedCustomer = em.find(CustomerPojo.class, custId);
         if (newAddress instanceof ShippingAddressPojo) {
             updatedCustomer.setShippingAddress(newAddress);
-        }
-        else {
+        } else {
             updatedCustomer.setBillingAddress(newAddress);
         }
         em.merge(updatedCustomer);
@@ -108,30 +177,126 @@ public class CustomerService implements Serializable {
             Root<ProductPojo> c = q.from(ProductPojo.class);
             q.select(c);
             TypedQuery<ProductPojo> q2 = em.createQuery(q);
-            List<ProductPojo> allProducts = q2.getResultList();
-            return allProducts;
-        }
-        catch (Exception e) {
+            return q2.getResultList();
+        } catch (Exception e) {
+            e.getStackTrace();
             return null;
         }
     }
 
     public ProductPojo getProductById(int prodId) {
-        return null;
+        try {
+            return em.find(ProductPojo.class, prodId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Transactional
+    public ProductPojo updateProductDesc(int id, String newDesc) {
+        try {
+            ProductPojo productPojo = em.find(ProductPojo.class, id);
+            productPojo.setDescription(newDesc);
+            em.merge(productPojo);
+            return productPojo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Transactional
+    public ProductPojo updateProductSN(int id, String newSN) {
+        try {
+            ProductPojo productPojo = em.find(ProductPojo.class, id);
+            productPojo.setSerialNo(newSN);
+            em.merge(productPojo);
+            return productPojo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public List<StorePojo> getAllStores() {
-        return null;
+        try {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<StorePojo> q = cb.createQuery(StorePojo.class);
+            Root<StorePojo> c = q.from(StorePojo.class);
+            q.select(c);
+            TypedQuery<StorePojo> q2 = em.createQuery(q);
+            return q2.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
+
     public StorePojo getStoreById(int id) {
-        return null;
+        try {
+            return em.find(StorePojo.class, id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-    
-    /*
-    
-    public OrderPojo getAllOrders ... getOrderbyId ... build Orders with OrderLines ...
-     
-    */
+
+    @Transactional
+    public StorePojo updateStoreName(int Id, String storeName) {
+        try {
+            StorePojo updatedStore = em.find(StorePojo.class, Id);
+            updatedStore.setStoreName(storeName);
+            em.merge(updatedStore);
+            return updatedStore;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+
+    public List<OrderPojo> getAllOrders() {
+        try {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<OrderPojo> q = cb.createQuery(OrderPojo.class);
+            Root<OrderPojo> o = q.from(OrderPojo.class);
+            q.select(o);
+            TypedQuery<OrderPojo> q2 = em.createQuery(q);
+            return q2.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public OrderPojo getOrderById(int id) {
+        try {
+            return em.find(OrderPojo.class, id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Transactional
+    public OrderPojo updateDescriptionForOrder(int Id, String desc) {
+        try {
+            OrderPojo updatedOrder = em.find(OrderPojo.class, Id);
+            updatedOrder.setDescription(desc);
+            em.merge(updatedOrder);
+            return updatedOrder;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+    //TODO orderLine
+
+
 
 }
