@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.ejb.Singleton;
 import javax.inject.Inject;
@@ -169,6 +170,18 @@ public class CustomerService implements Serializable {
         return updatedCustomer;
     }
 
+    @Transactional
+    public CustomerPojo removeCustomerById(int custId) {
+        try {
+            CustomerPojo pojo = em.find(CustomerPojo.class, custId);
+            em.remove(pojo);
+            return pojo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public List<ProductPojo> getAllProducts() {
         //example of using JPA Criteria query instead of JPQL
         try {
@@ -219,6 +232,19 @@ public class CustomerService implements Serializable {
         }
     }
 
+    @Transactional
+    public ProductPojo removeProductById(int id) {
+        try {
+            ProductPojo pojo = em.find(ProductPojo.class, id);
+            em.remove(pojo);
+            return pojo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
     public List<StorePojo> getAllStores() {
         try {
             CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -258,6 +284,17 @@ public class CustomerService implements Serializable {
 
     }
 
+    @Transactional
+    public StorePojo removeStoreById(int id) {
+        try {
+            StorePojo pojo = em.find(StorePojo.class, id);
+            em.remove(pojo);
+            return pojo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public List<OrderPojo> getAllOrders() {
         try {
@@ -267,6 +304,16 @@ public class CustomerService implements Serializable {
             q.select(o);
             TypedQuery<OrderPojo> q2 = em.createQuery(q);
             return q2.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<OrderPojo> getCustomerALLOrders(int custID) {
+        try {
+            TypedQuery<OrderPojo> query = em.createQuery("select op from OrderPojo  op where op.owningCustomer=:id", OrderPojo.class);
+            return query.getResultList();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -295,8 +342,81 @@ public class CustomerService implements Serializable {
         }
 
     }
+
+
+    @Transactional
+    public OrderPojo removeOrderById(int id) {
+        try {
+            OrderPojo pojo = em.find(OrderPojo.class, id);
+            em.remove(pojo);
+            return pojo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     //TODO orderLine
 
+    public List<OrderLinePojo> getOneOrderALLOrderLineById(int oId) {
+        try {
+            TypedQuery<OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo ol where ol.pk.owningOrderId=:id", OrderLinePojo.class);
+            query.setParameter("id", oId);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public OrderLinePojo getOrderLineByOrderLineNo(int no) {
+        try {
+            TypedQuery<OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo ol where ol.pk.orderLineNo=:no", OrderLinePojo.class);
+            query.setParameter("no", no);
+            return query.getSingleResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Transactional
+    public OrderLinePojo updateOrderLineAmountByOrderLineNo(int No, double newAmount) {
+        try {
+            OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
+            orderLinePojo.setAmount(newAmount);
+            em.merge(orderLinePojo);
+            return orderLinePojo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Transactional
+    public OrderLinePojo updateOrderLinePriceByOrderLineNo(int No, double newPrice) {
+        try {
+            OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
+            orderLinePojo.setPrice(newPrice);
+            em.merge(orderLinePojo);
+            return orderLinePojo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Transactional
+    public OrderLinePojo removeOrderLineByNo(int No) {
+        try {
+            OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
+            em.remove(orderLinePojo);
+            return orderLinePojo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 
 }
