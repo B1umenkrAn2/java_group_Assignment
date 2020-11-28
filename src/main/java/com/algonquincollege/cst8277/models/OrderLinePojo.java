@@ -8,6 +8,8 @@
  */
 package com.algonquincollege.cst8277.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -37,6 +39,7 @@ public class OrderLinePojo implements Serializable {
     public void setPk(OrderLinePk primaryKey) {
         this.primaryKey = primaryKey;
     }
+    @JsonBackReference
     @MapsId("owningOrderId")
     @ManyToOne
     @JoinColumn(name = "OWNING_ORDER_ID")

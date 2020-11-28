@@ -8,6 +8,9 @@
  */
 package com.algonquincollege.cst8277.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -39,6 +42,7 @@ public class OrderPojo extends PojoBase implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
+    @JsonManagedReference
     @OneToMany(mappedBy= "owningOrder", cascade = CascadeType.ALL,orphanRemoval= true)
 	public Set<OrderLinePojo> getOrderlines() {
 		return this.orderlines;
@@ -56,6 +60,7 @@ public class OrderPojo extends PojoBase implements Serializable {
         orderline.setOwningOrder(null);
 		return orderline;
 	}
+	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name = "OWNING_CUST_ID")
 	public CustomerPojo getOwningCustomer() {

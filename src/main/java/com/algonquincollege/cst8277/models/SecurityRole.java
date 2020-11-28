@@ -3,7 +3,7 @@
  * Course materials (20F) CST 8277
  *
  * @author (original) Mike Norman
- * 
+ *
  * update by : I. Am. A. Student 040nnnnnnn
  */
 package com.algonquincollege.cst8277.models;
@@ -22,8 +22,13 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "SECURITY_ROLE")
+@NamedQueries({
+        @NamedQuery(name = "roleByName", query = "select sr from SecurityRole sr where sr.roleName =:param1 ")}
+)
 public class SecurityRole implements Serializable {
-    /** explicit set serialVersionUID */
+    /**
+     * explicit set serialVersionUID
+     */
     private static final long serialVersionUID = 1L;
 
     public static final String ROLE_BY_NAME_QUERY = "roleByName";
@@ -35,30 +40,37 @@ public class SecurityRole implements Serializable {
     public SecurityRole() {
         super();
     }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ROLE_ID")
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
+
     @Column(name = "ROLENAME")
     public String getRoleName() {
         return roleName;
     }
+
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
+
     @ManyToMany(mappedBy = "roles")
     @JsonInclude(Include.NON_NULL)
     public Set<SecurityUser> getUsers() {
         return users;
     }
+
     public void setUsers(Set<SecurityUser> users) {
         this.users = users;
     }
+
     public void addUserToRole(SecurityUser user) {
         getUsers().add(user);
     }
@@ -82,7 +94,7 @@ public class SecurityRole implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        SecurityRole other = (SecurityRole)obj;
+        SecurityRole other = (SecurityRole) obj;
         if (id != other.id) {
             return false;
         }

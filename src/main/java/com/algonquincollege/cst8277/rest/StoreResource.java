@@ -30,7 +30,7 @@ import com.algonquincollege.cst8277.ejb.CustomerService;
 import com.algonquincollege.cst8277.models.StorePojo;
 
 public class StoreResource {
-
+    @EJB
     protected CustomerService customerServiceBean;
 
     @Inject

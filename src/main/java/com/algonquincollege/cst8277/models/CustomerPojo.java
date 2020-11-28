@@ -3,10 +3,13 @@
  * Course materials (20F) CST 8277
  *
  * @author (original) Mike Norman
- * 
+ *
  * update by : I. Am. A. Student 040nnnnnnn
  */
 package com.algonquincollege.cst8277.models;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,9 +18,8 @@ import java.util.Set;
 import javax.persistence.*;
 
 /**
-*
-* Description: model for the Customer object
-*/
+ * Description: model for the Customer object
+ */
 @Entity
 @Table(name = "CUSTOMER")
 @AttributeOverride(name = "id", column = @Column(name = "CUSTOMER_ID"))
@@ -33,15 +35,15 @@ public class CustomerPojo extends PojoBase implements Serializable {
 
 
     //1:1
-	protected AddressPojo billingAddress;
-	protected AddressPojo shippingAddress;
-	//1:M
+    protected AddressPojo billingAddress;
+    protected AddressPojo shippingAddress;
+    //1:M
     protected Set<OrderPojo> Orders;
-	
+
     // JPA requires each @Entity class have a default constructor
-	public CustomerPojo() {
-	}
-	
+    public CustomerPojo() {
+    }
+
     /**
      * @return the value for firstName
      */
@@ -49,6 +51,7 @@ public class CustomerPojo extends PojoBase implements Serializable {
     public String getFirstName() {
         return firstName;
     }
+
     /**
      * @param firstName new value for firstName
      */
@@ -63,6 +66,7 @@ public class CustomerPojo extends PojoBase implements Serializable {
     public String getLastName() {
         return lastName;
     }
+
     /**
      * @param lastName new value for lastName
      */
@@ -70,17 +74,20 @@ public class CustomerPojo extends PojoBase implements Serializable {
         this.lastName = lastName;
     }
 
-    @Column(name ="EMAIL" )
+    @Column(name = "EMAIL")
     public String getEmail() {
         return email;
     }
+
     public void setEmail(String email) {
         this.email = email;
     }
+
     @Column(name = "PHONENUMBER")
     public String getPhoneNumber() {
         return phoneNumber;
     }
+
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
@@ -89,12 +96,13 @@ public class CustomerPojo extends PojoBase implements Serializable {
     @OneToOne
     @JoinColumn(name = "BILLING_ADDR")
     public AddressPojo getBillingAddress() {
-        return this.billingAddress ;
+        return this.billingAddress;
     }
 
     public void setBillingAddress(AddressPojo BILLING_ADDR) {
         this.billingAddress = BILLING_ADDR;
     }
+
     @OneToOne
     @JoinColumn(name = "SHIPPING_ADDR")
     public AddressPojo getShippingAddress() {
@@ -104,8 +112,11 @@ public class CustomerPojo extends PojoBase implements Serializable {
     public void setShippingAddress(AddressPojo SHIPPING_ADDR) {
         this.shippingAddress = SHIPPING_ADDR;
     }
-    @OneToMany
-    @JoinColumn(name ="ORDER_ID" )
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "owningCustomer",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     public Set<OrderPojo> getOrders() {
         return Orders;
     }
@@ -118,32 +129,32 @@ public class CustomerPojo extends PojoBase implements Serializable {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder
-            .append("Customer [id=")
-            .append(id)
-            .append(", ");
+                .append("Customer [id=")
+                .append(id)
+                .append(", ");
         if (firstName != null) {
             builder
-                .append("firstName=")
-                .append(firstName)
-                .append(", ");
+                    .append("firstName=")
+                    .append(firstName)
+                    .append(", ");
         }
         if (lastName != null) {
             builder
-                .append("lastName=")
-                .append(lastName)
-                .append(", ");
+                    .append("lastName=")
+                    .append(lastName)
+                    .append(", ");
         }
         if (phoneNumber != null) {
             builder
-                .append("phoneNumber=")
-                .append(phoneNumber)
-                .append(", ");
+                    .append("phoneNumber=")
+                    .append(phoneNumber)
+                    .append(", ");
         }
         if (email != null) {
             builder
-                .append("email=")
-                .append(email)
-                .append(", ");
+                    .append("email=")
+                    .append(email)
+                    .append(", ");
         }
         builder.append("]");
         return builder.toString();

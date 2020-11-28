@@ -13,10 +13,7 @@ import static com.algonquincollege.cst8277.models.SecurityRole.ROLE_BY_NAME_QUER
 import static com.algonquincollege.cst8277.utils.MyConstants.*;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.ejb.Singleton;
 import javax.inject.Inject;
@@ -242,7 +239,9 @@ public class CustomerService implements Serializable {
     }
 
     public List<OrderPojo> getCustomerALLOrders(int custID) {
-        TypedQuery<OrderPojo> query = em.createQuery("select op from OrderPojo  op where op.owningCustomer=:id", OrderPojo.class);
+        CustomerPojo customerPojo = em.find(CustomerPojo.class, custID);
+        TypedQuery<OrderPojo> query = em.createQuery("select o from OrderPojo o   where o.owningCustomer.id=:id", OrderPojo.class);
+        query.setParameter("id", custID);
         return query.getResultList();
 
     }

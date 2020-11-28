@@ -33,6 +33,7 @@ import static com.algonquincollege.cst8277.utils.MyConstants.*;
 @Produces(MediaType.APPLICATION_JSON)
 public class ProductResource {
 
+    @EJB
     protected CustomerService customerServiceBean;
 
     @Inject
@@ -51,7 +52,7 @@ public class ProductResource {
     }
 
     @GET
-    @Path(PRODUCT_RESOURCE_NAME)
+    @Path("{id}")
     public Response getProductById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to retrieve specific product " + id);
         ProductPojo theProduct = customerServiceBean.getProductById(id);

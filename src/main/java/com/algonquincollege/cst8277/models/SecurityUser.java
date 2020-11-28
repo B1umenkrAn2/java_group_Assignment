@@ -26,6 +26,10 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "SECURITY_USER")
+@NamedQueries({
+        @NamedQuery(name = "userByName", query = "select sr from SecurityUser sr where sr.username =:param1 "),
+        @NamedQuery(name="userForOwningCust",query = "select sr from SecurityUser sr where sr.customer.id=:id")}
+)
 public class SecurityUser implements Serializable, Principal {
     /**
      * explicit set serialVersionUID
