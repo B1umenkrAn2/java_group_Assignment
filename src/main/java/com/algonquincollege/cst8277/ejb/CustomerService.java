@@ -49,92 +49,55 @@ public class CustomerService implements Serializable {
 
 
     public List<CustomerPojo> getAllCustomers() {
-        try {
-            em.getTransaction().begin();
-            TypedQuery<CustomerPojo> selectCFromCustomerPojo = em.createQuery("select c from CustomerPojo c ", CustomerPojo.class);
-            List<CustomerPojo> resultList = selectCFromCustomerPojo.getResultList();
-            em.getTransaction().commit();
-            return resultList;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
+        TypedQuery<CustomerPojo> selectCFromCustomerPojo = em.createQuery("select c from CustomerPojo c ", CustomerPojo.class);
+        return selectCFromCustomerPojo.getResultList();
     }
 
     public CustomerPojo getCustomerById(int custPK) {
-        try {
-            return em.find(CustomerPojo.class, custPK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
+        return em.find(CustomerPojo.class, custPK);
     }
 
     @Transactional
     public CustomerPojo persistCustomer(CustomerPojo newCustomer) {
-        try {
-            em.getTransaction().begin();
-            em.persist(newCustomer);
-            em.getTransaction().commit();
-            return newCustomer;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        em.persist(newCustomer);
+        return newCustomer;
+
     }
 
     @Transactional
     public CustomerPojo updateCustomerFirstName(int id, String newFName) {
-        try {
-            CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
-            customerPojo.setFirstName(newFName);
-            em.merge(customerPojo);
-            return customerPojo;
-        } catch (Exception e) {
-            e.getStackTrace();
-            return null;
-        }
+        CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
+        customerPojo.setFirstName(newFName);
+        em.merge(customerPojo);
+        return customerPojo;
+
     }
 
     @Transactional
     public CustomerPojo updateCustomerLastName(int id, String newLName) {
-        try {
-            CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
-            customerPojo.setLastName(newLName);
-            em.merge(customerPojo);
-            return customerPojo;
-        } catch (Exception e) {
-            e.getStackTrace();
-            return null;
-        }
+        CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
+        customerPojo.setLastName(newLName);
+        em.merge(customerPojo);
+        return customerPojo;
+
     }
 
     @Transactional
     public CustomerPojo updateCustomerEmail(int id, String newEmail) {
-        try {
-            CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
-            customerPojo.setEmail(newEmail);
-            em.merge(customerPojo);
-            return customerPojo;
-        } catch (Exception e) {
-            e.getStackTrace();
-            return null;
-        }
+        CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
+        customerPojo.setEmail(newEmail);
+        em.merge(customerPojo);
+        return customerPojo;
+
     }
 
     @Transactional
     public CustomerPojo updateCustomerPhone(int id, String newPhone) {
-        try {
-            CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
-            customerPojo.setPhoneNumber(newPhone);
-            em.merge(customerPojo);
-            return customerPojo;
-        } catch (Exception e) {
-            e.getStackTrace();
-            return null;
-        }
+        CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
+        customerPojo.setPhoneNumber(newPhone);
+        em.merge(customerPojo);
+        return customerPojo;
+
     }
 
 
@@ -172,14 +135,10 @@ public class CustomerService implements Serializable {
 
     @Transactional
     public CustomerPojo removeCustomerById(int custId) {
-        try {
-            CustomerPojo pojo = em.find(CustomerPojo.class, custId);
-            em.remove(pojo);
-            return pojo;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+
+        CustomerPojo pojo = em.find(CustomerPojo.class, custId);
+        em.remove(pojo);
+        return pojo;
     }
 
     public List<ProductPojo> getAllProducts() {
@@ -192,230 +151,166 @@ public class CustomerService implements Serializable {
             TypedQuery<ProductPojo> q2 = em.createQuery(q);
             return q2.getResultList();
         } catch (Exception e) {
-            e.getStackTrace();
             return null;
         }
     }
 
     public ProductPojo getProductById(int prodId) {
-        try {
-            return em.find(ProductPojo.class, prodId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+
+        return em.find(ProductPojo.class, prodId);
+
     }
 
     @Transactional
     public ProductPojo updateProductDesc(int id, String newDesc) {
-        try {
-            ProductPojo productPojo = em.find(ProductPojo.class, id);
-            productPojo.setDescription(newDesc);
-            em.merge(productPojo);
-            return productPojo;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+
+        ProductPojo productPojo = em.find(ProductPojo.class, id);
+        productPojo.setDescription(newDesc);
+        em.merge(productPojo);
+        return productPojo;
+
     }
 
     @Transactional
     public ProductPojo updateProductSN(int id, String newSN) {
-        try {
-            ProductPojo productPojo = em.find(ProductPojo.class, id);
-            productPojo.setSerialNo(newSN);
-            em.merge(productPojo);
-            return productPojo;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+
+        ProductPojo productPojo = em.find(ProductPojo.class, id);
+        productPojo.setSerialNo(newSN);
+        em.merge(productPojo);
+        return productPojo;
+
     }
 
     @Transactional
     public ProductPojo removeProductById(int id) {
-        try {
-            ProductPojo pojo = em.find(ProductPojo.class, id);
-            em.remove(pojo);
-            return pojo;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+
+        ProductPojo pojo = em.find(ProductPojo.class, id);
+        em.remove(pojo);
+        return pojo;
+
+
     }
 
 
     public List<StorePojo> getAllStores() {
-        try {
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            CriteriaQuery<StorePojo> q = cb.createQuery(StorePojo.class);
-            Root<StorePojo> c = q.from(StorePojo.class);
-            q.select(c);
-            TypedQuery<StorePojo> q2 = em.createQuery(q);
-            return q2.getResultList();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<StorePojo> q = cb.createQuery(StorePojo.class);
+        Root<StorePojo> c = q.from(StorePojo.class);
+        q.select(c);
+        TypedQuery<StorePojo> q2 = em.createQuery(q);
+        return q2.getResultList();
+
 
     }
 
 
     public StorePojo getStoreById(int id) {
-        try {
-            return em.find(StorePojo.class, id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+
+        return em.find(StorePojo.class, id);
+
     }
 
     @Transactional
     public StorePojo updateStoreName(int Id, String storeName) {
-        try {
-            StorePojo updatedStore = em.find(StorePojo.class, Id);
-            updatedStore.setStoreName(storeName);
-            em.merge(updatedStore);
-            return updatedStore;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+
+        StorePojo updatedStore = em.find(StorePojo.class, Id);
+        updatedStore.setStoreName(storeName);
+        em.merge(updatedStore);
+        return updatedStore;
+
 
     }
 
     @Transactional
     public StorePojo removeStoreById(int id) {
-        try {
-            StorePojo pojo = em.find(StorePojo.class, id);
-            em.remove(pojo);
-            return pojo;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+
+        StorePojo pojo = em.find(StorePojo.class, id);
+        em.remove(pojo);
+        return pojo;
+
     }
 
     public List<OrderPojo> getAllOrders() {
-        try {
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            CriteriaQuery<OrderPojo> q = cb.createQuery(OrderPojo.class);
-            Root<OrderPojo> o = q.from(OrderPojo.class);
-            q.select(o);
-            TypedQuery<OrderPojo> q2 = em.createQuery(q);
-            return q2.getResultList();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<OrderPojo> q = cb.createQuery(OrderPojo.class);
+        Root<OrderPojo> o = q.from(OrderPojo.class);
+        q.select(o);
+        TypedQuery<OrderPojo> q2 = em.createQuery(q);
+        return q2.getResultList();
+
     }
 
     public List<OrderPojo> getCustomerALLOrders(int custID) {
-        try {
-            TypedQuery<OrderPojo> query = em.createQuery("select op from OrderPojo  op where op.owningCustomer=:id", OrderPojo.class);
-            return query.getResultList();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        TypedQuery<OrderPojo> query = em.createQuery("select op from OrderPojo  op where op.owningCustomer=:id", OrderPojo.class);
+        return query.getResultList();
+
     }
 
     public OrderPojo getOrderById(int id) {
-        try {
-            return em.find(OrderPojo.class, id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return em.find(OrderPojo.class, id);
+
     }
 
     @Transactional
     public OrderPojo updateDescriptionForOrder(int Id, String desc) {
-        try {
-            OrderPojo updatedOrder = em.find(OrderPojo.class, Id);
-            updatedOrder.setDescription(desc);
-            em.merge(updatedOrder);
-            return updatedOrder;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        OrderPojo updatedOrder = em.find(OrderPojo.class, Id);
+        updatedOrder.setDescription(desc);
+        em.merge(updatedOrder);
+        return updatedOrder;
+
 
     }
 
 
     @Transactional
     public OrderPojo removeOrderById(int id) {
-        try {
-            OrderPojo pojo = em.find(OrderPojo.class, id);
-            em.remove(pojo);
-            return pojo;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        OrderPojo pojo = em.find(OrderPojo.class, id);
+        em.remove(pojo);
+        return pojo;
+
     }
 
     //TODO orderLine
 
     public List<OrderLinePojo> getOneOrderALLOrderLineById(int oId) {
-        try {
-            TypedQuery<OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo ol where ol.pk.owningOrderId=:id", OrderLinePojo.class);
-            query.setParameter("id", oId);
-            return query.getResultList();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        TypedQuery<OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo ol where ol.pk.owningOrderId=:id", OrderLinePojo.class);
+        query.setParameter("id", oId);
+        return query.getResultList();
+
     }
 
     public OrderLinePojo getOrderLineByOrderLineNo(int no) {
-        try {
-            TypedQuery<OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo ol where ol.pk.orderLineNo=:no", OrderLinePojo.class);
-            query.setParameter("no", no);
-            return query.getSingleResult();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        TypedQuery<OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo ol where ol.pk.orderLineNo=:no", OrderLinePojo.class);
+        query.setParameter("no", no);
+        return query.getSingleResult();
+
     }
 
     @Transactional
     public OrderLinePojo updateOrderLineAmountByOrderLineNo(int No, double newAmount) {
-        try {
-            OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
-            orderLinePojo.setAmount(newAmount);
-            em.merge(orderLinePojo);
-            return orderLinePojo;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
+        orderLinePojo.setAmount(newAmount);
+        em.merge(orderLinePojo);
+        return orderLinePojo;
+
     }
 
     @Transactional
     public OrderLinePojo updateOrderLinePriceByOrderLineNo(int No, double newPrice) {
-        try {
-            OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
-            orderLinePojo.setPrice(newPrice);
-            em.merge(orderLinePojo);
-            return orderLinePojo;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
+        orderLinePojo.setPrice(newPrice);
+        em.merge(orderLinePojo);
+        return orderLinePojo;
+
     }
 
     @Transactional
     public OrderLinePojo removeOrderLineByNo(int No) {
-        try {
-            OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
-            em.remove(orderLinePojo);
-            return orderLinePojo;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
+        em.remove(orderLinePojo);
+        return orderLinePojo;
+
     }
 
 
