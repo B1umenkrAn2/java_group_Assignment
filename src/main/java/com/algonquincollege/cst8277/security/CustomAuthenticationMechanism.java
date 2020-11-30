@@ -4,7 +4,12 @@
  *
  * @author (original) Mike Norman
  * 
- * Note: students do NOT need to change anything in this class
+ * update by :
+ * Lai Shan Law (040595733)
+ * Siyang Xiong (040938012)
+ * Angela Zhao (040529234)
+ * 
+ * @date 2020-11-21
  */
 package com.algonquincollege.cst8277.security;
 
@@ -49,7 +54,7 @@ public class CustomAuthenticationMechanism implements HttpAuthenticationMechanis
             boolean startsWithBasic = authHeader.toLowerCase().startsWith(BASIC_AUTH.toLowerCase());
             if (startsWithBasic) {
                 String b64Token = authHeader.substring(BASIC_AUTH.length() + 1, authHeader.length());
-                //  ^^^^^^^^^^^ account for space between BASIC and base64-string
+                //                                              ^^^^^^^^^^^ account for space between BASIC and base64-string
                 byte[] token = Base64.getDecoder().decode(b64Token);
                 String tmp = new String(token);
                 String[] tokenFields = tmp.split(":");

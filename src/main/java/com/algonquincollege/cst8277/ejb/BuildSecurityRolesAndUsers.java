@@ -4,8 +4,12 @@
  *
  * @author (original) Mike Norman
  * 
- * Note: students do NOT need to change anything in this class
- *
+ * update by :
+ * Lai Shan Law (040595733)
+ * Siyang Xiong (040938012)
+ * Angela Zhao (040529234)
+ * 
+ * @date 2020-11-21
  */
 package com.algonquincollege.cst8277.ejb;
 
@@ -28,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
@@ -47,7 +50,6 @@ import com.algonquincollege.cst8277.security.CustomIdentityStoreJPAHelper;
  * ADMIN role of ADMIN and the USER role ... and stores all of them in the database.
  *
  */
-
 @Startup
 @Singleton
 public class BuildSecurityRolesAndUsers {

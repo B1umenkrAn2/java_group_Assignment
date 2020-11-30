@@ -2,7 +2,14 @@
  * File: CustomIdentityStore.java
  * Course materials (20F) CST 8277
  * @author Mike Norman
+ *
+ * update by :
+ * Lai Shan Law (040595733)
+ * Siyang Xiong (040938012)
+ * Angela Zhao (040529234)
  * 
+ * @date 2020-11-21
+ *
  * Note: students do NOT need to change anything in this class
  */
 package com.algonquincollege.cst8277.security;
@@ -94,7 +101,7 @@ public class CustomIdentityStore implements IdentityStore {
         if (!roles.isEmpty()) {
             roleNames = roles
                 .stream()
-                .map(SecurityRole::getRoleName)
+                .map(s -> s.getRoleName())
                 .collect(Collectors.toSet());
         }
         return roleNames;

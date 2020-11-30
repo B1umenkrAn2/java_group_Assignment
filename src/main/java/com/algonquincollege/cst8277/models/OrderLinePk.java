@@ -4,26 +4,34 @@
  *
  * @author (original) Mike Norman
  * 
- * update by : I. Am. A. Student 040nnnnnnn
+ * update by :
+ * Lai Shan Law (040595733)
+ * Siyang Xiong (040938012)
+ * Angela Zhao (040529234)
+ * 
+ * @date 2020-11-21
  */
 package com.algonquincollege.cst8277.models;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.JoinColumn;
-import javax.persistence.MapsId;
-import javax.xml.namespace.QName;
 import java.io.Serializable;
 import java.util.Objects;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import java.util.Objects;
+
 @Embeddable
+@Access(AccessType.PROPERTY)
 public class OrderLinePk implements Serializable {
     /** explicit set serialVersionUID */
     private static final long serialVersionUID = 1L;
 
     protected int owningOrderId;
     protected int orderLineNo;
-
+    
+    @Column(name = "OWNING_ORDER_ID")
     public int getOwningOrderId() {
         return owningOrderId;
     }

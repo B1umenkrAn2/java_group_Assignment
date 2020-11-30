@@ -3,19 +3,40 @@
  * Course materials (20F) CST 8277
  *
  * @author (original) Mike Norman
- *
- * update by : I. Am. A. Student 040nnnnnnn
- *
+ * 
+ * update by :
+ * Lai Shan Law (040595733)
+ * Siyang Xiong (040938012)
+ * Angela Zhao (040529234)
+ * 
+ * @date 2020-11-21
  */
 package com.algonquincollege.cst8277.ejb;
 
+import static com.algonquincollege.cst8277.models.SecurityUser.USER_FOR_OWNING_CUST_QUERY;
 import static com.algonquincollege.cst8277.models.SecurityRole.ROLE_BY_NAME_QUERY;
-import static com.algonquincollege.cst8277.utils.MyConstants.*;
+import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_KEY_SIZE;
+import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_PROPERTY_ALGORITHM;
+import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_PROPERTY_ITERATIONS;
+import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_SALT_SIZE;
+import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_USER_PASSWORD;
+import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_USER_PREFIX;
+import static com.algonquincollege.cst8277.utils.MyConstants.PARAM1;
+import static com.algonquincollege.cst8277.utils.MyConstants.PROPERTY_ALGORITHM;
+import static com.algonquincollege.cst8277.utils.MyConstants.PROPERTY_ITERATIONS;
+import static com.algonquincollege.cst8277.utils.MyConstants.PROPERTY_KEYSIZE;
+import static com.algonquincollege.cst8277.utils.MyConstants.PROPERTY_SALTSIZE;
+import static com.algonquincollege.cst8277.utils.MyConstants.USER_ROLE;
+
+import static com.algonquincollege.cst8277.models.CustomerPojo.ALL_CUSTOMERS_QUERY_NAME;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.ejb.Singleton;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -26,47 +47,67 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.security.enterprise.identitystore.Pbkdf2PasswordHash;
 import javax.transaction.Transactional;
+import javax.ws.rs.NotFoundException;
 
-import com.algonquincollege.cst8277.models.*;
+import com.algonquincollege.cst8277.models.AddressPojo;
+import com.algonquincollege.cst8277.models.OrderLinePojo;
+import com.algonquincollege.cst8277.models.CustomerPojo;
+import com.algonquincollege.cst8277.models.OrderPojo;
+import com.algonquincollege.cst8277.models.ProductPojo;
+import com.algonquincollege.cst8277.models.SecurityRole;
+import com.algonquincollege.cst8277.models.SecurityUser;
+import com.algonquincollege.cst8277.models.ShippingAddressPojo;
+import com.algonquincollege.cst8277.models.StorePojo;
 
 /**
  * Stateless Singleton Session Bean - CustomerService
+ * Singleton session beans offer similar functionality to stateless session beans
+ * but differ from them in that there is only one singleton session bean per application,
+ * as opposed to a pool of stateless session beans, any of which may respond to a client request.
+ * Like stateless session beans, singleton session beans can implement web service endpoints.
  */
-@Singleton
+@Stateless
 public class CustomerService implements Serializable {
     private static final long serialVersionUID = 1L;
+    
+    public static final String CUSTOMER_PU = "20f-groupProject-PU";
 
-//    public static final String CUSTOMER_PU = "acmeCustomers-PU";
-
-    @PersistenceContext(name = PU_NAME)
+    @PersistenceContext(name = CUSTOMER_PU)
     protected EntityManager em;
 
     @Inject
     protected Pbkdf2PasswordHash pbAndjPasswordHash;
-
-
+    
+    //TODO
+    /*
+     * Customer***
+     */
     public List<CustomerPojo> getAllCustomers() {
-        TypedQuery<CustomerPojo> selectCFromCustomerPojo = em.createQuery("select c from CustomerPojo c ", CustomerPojo.class);
-        return selectCFromCustomerPojo.getResultList();
+        return em.createNamedQuery(ALL_CUSTOMERS_QUERY_NAME, CustomerPojo.class).getResultList();
     }
 
     public CustomerPojo getCustomerById(int custPK) {
         return em.find(CustomerPojo.class, custPK);
     }
-
-    public List<AddressPojo> getCustomerAlladdressByCustId(int id) {
-        TypedQuery<AddressPojo> query = em.createQuery("select ap from AddressPojo ap join CustomerPojo c on c.billingAddress.id = ap.id or c.shippingAddress.id = ap.id where c.id =:id", AddressPojo.class);
-        query.setParameter("id", id);
-        return query.getResultList();
+    
+    @Transactional
+    public AddressPojo updateAddress(AddressPojo ap) {
+        return em.merge(ap);
     }
 
-    public AddressPojo getCustomerAddressByAddressId(int id, int id2) {
-        TypedQuery<AddressPojo> query = em.createQuery("select ap from AddressPojo ap join CustomerPojo c on c.billingAddress.id = ap.id or c.shippingAddress.id = ap.id where c.id =:id and ap.id =:id2", AddressPojo.class);
-        query.setParameter("id", id);
-        query.setParameter("id2", id2);
-        return query.getSingleResult();
+    //Add new customer***
+    @Transactional
+    public CustomerPojo persistCustomer(CustomerPojo newCustomer) {
+        em.persist(newCustomer);
+        return newCustomer;
     }
-
+    
+    @Transactional
+    public CustomerPojo updateCustomer(CustomerPojo customerToUpdate) {
+        em.merge(customerToUpdate);
+        return customerToUpdate;
+    }
+    
     @Transactional
     public AddressPojo removeAddressByid(int id) {
         AddressPojo addressPojo = em.find(AddressPojo.class, id);
@@ -74,25 +115,22 @@ public class CustomerService implements Serializable {
         return addressPojo;
     }
 
-    @Transactional
-    public AddressPojo updateAddress(AddressPojo ap) {
-        return em.merge(ap);
-    }
 
     @Transactional
-    public CustomerPojo persistCustomer(CustomerPojo newCustomer) {
-        em.persist(newCustomer);
-        return newCustomer;
-
+    public void removeCustomer(int custId) {
+        CustomerPojo customer = getCustomerById(custId);
+        if (customer == null) {
+            throw new NotFoundException("customer does not found");
+        }
+        else {
+            em.refresh(customer);
+            em.remove(customer);
+        }
     }
-
-
-    @Transactional
-    public CustomerPojo updateCustomer(CustomerPojo cp) {
-        return em.merge(cp);
-    }
-
-
+  
+    /*
+     * Security User***
+     */
     @Transactional
     public void buildUserForNewCustomer(CustomerPojo newCustomerWithIdTimestamps) {
         SecurityUser userForNewCustomer = new SecurityUser();
@@ -107,33 +145,54 @@ public class CustomerService implements Serializable {
         userForNewCustomer.setPwHash(pwHash);
         userForNewCustomer.setCustomer(newCustomerWithIdTimestamps);
         SecurityRole userRole = em.createNamedQuery(ROLE_BY_NAME_QUERY,
-                SecurityRole.class).setParameter(PARAM1, USER_ROLE).getSingleResult();
+            SecurityRole.class).setParameter(PARAM1, USER_ROLE).getSingleResult();
         userForNewCustomer.getRoles().add(userRole);
         userRole.getUsers().add(userForNewCustomer);
         em.persist(userForNewCustomer);
     }
-
+    //remove user when Customer is deleted from database
+    @Transactional
+    public void removeUserFromCustomer(int custId) {
+        SecurityUser RemoveUser = em.createNamedQuery(USER_FOR_OWNING_CUST_QUERY,
+            SecurityUser.class).setParameter(PARAM1, custId).getSingleResult();
+        em.remove(RemoveUser);
+    }
+    
+    
+    /*
+     * Address***
+     */
     @Transactional
     public CustomerPojo setAddressFor(int custId, AddressPojo newAddress) {
         CustomerPojo updatedCustomer = em.find(CustomerPojo.class, custId);
         if (newAddress instanceof ShippingAddressPojo) {
             updatedCustomer.setShippingAddress(newAddress);
-        } else {
+        }
+        else {
             updatedCustomer.setBillingAddress(newAddress);
         }
         em.merge(updatedCustomer);
         return updatedCustomer;
     }
-
+    /*
+     * Add orders to Customer------------------
+     */
     @Transactional
-    public CustomerPojo removeCustomerById(int custId) {
-
-        CustomerPojo pojo = em.find(CustomerPojo.class, custId);
-        em.remove(pojo);
-        return pojo;
+    public CustomerPojo setOrdersForCustomer(int custId, List<OrderPojo> newOrders) {
+        CustomerPojo updatedCustomer = em.find(CustomerPojo.class, custId);
+        if (newOrders == null) {
+            throw new NotFoundException("orders do not found");
+        }
+        else {
+            updatedCustomer.setOrders(newOrders);
+        }
+        em.merge(updatedCustomer);
+        return updatedCustomer;
     }
-
-    public List<ProductPojo> getAllProducts() {
+    /*
+     * Product***
+     */
+   public List<ProductPojo> getAllProducts() {
         //example of using JPA Criteria query instead of JPQL
         try {
             CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -141,130 +200,128 @@ public class CustomerService implements Serializable {
             Root<ProductPojo> c = q.from(ProductPojo.class);
             q.select(c);
             TypedQuery<ProductPojo> q2 = em.createQuery(q);
-            return q2.getResultList();
-        } catch (Exception e) {
+            List<ProductPojo> allProducts = q2.getResultList();
+            return allProducts;
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public ProductPojo getProductById(int prodId) {
+        return em.find(ProductPojo.class, prodId);
+    }
+
+    /*
+     * Stores***
+     */
+    public List<StorePojo> getAllStores() {
+        try {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<StorePojo> q = cb.createQuery(StorePojo.class);
+            Root<StorePojo> c = q.from(StorePojo.class);
+            q.select(c);
+            TypedQuery<StorePojo> q2 = em.createQuery(q);
+            List<StorePojo> allStores = q2.getResultList();
+            return allStores;
+        }
+        catch (Exception e) {
+            return null;
+        }
+ }
+
+    public StorePojo getStoreById(int id) {
+        return em.find(StorePojo.class, id);
+    }
+    
+    public List<OrderPojo> getAllOrders() {
+        //example of using JPA Criteria query instead of JPQL
+        try {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<OrderPojo> q = cb.createQuery(OrderPojo.class);
+            Root<OrderPojo> c = q.from(OrderPojo.class);
+            q.select(c);
+            TypedQuery<OrderPojo> q2 = em.createQuery(q);
+            List<OrderPojo> allOrders = q2.getResultList();
+            return allOrders;
+        }
+        catch (Exception e) {
             return null;
         }
     }
 
-    public ProductPojo getProductById(int prodId) {
-
-        return em.find(ProductPojo.class, prodId);
-
+    public OrderPojo getOrderbyId(int orderId) {
+        return em.find(OrderPojo.class, orderId);
     }
-
+    
+   
+  //Add new order
     @Transactional
-    public ProductPojo updateProduct(ProductPojo pp) {
-
-        return  em.merge(pp);
+    public OrderPojo persistOrder(OrderPojo newOrder) {
+        em.persist(newOrder);
+        return newOrder;
     }
-
-
+    /*
     @Transactional
-    public ProductPojo removeProductById(int id) {
-        ProductPojo pojo = em.find(ProductPojo.class, id);
-        em.remove(pojo);
-        return pojo;
+    public OrderPojo updateOrder(OrderPojo orderToUpdate) {
+        em.merge(orderToUpdate);
+        return orderToUpdate;
     }
-
-
-    public List<StorePojo> getAllStores() {
-
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<StorePojo> q = cb.createQuery(StorePojo.class);
-        Root<StorePojo> c = q.from(StorePojo.class);
-        q.select(c);
-        TypedQuery<StorePojo> q2 = em.createQuery(q);
-        return q2.getResultList();
-
-
-    }
-
-
-    public StorePojo getStoreById(int id) {
-
-        return em.find(StorePojo.class, id);
-
-    }
-
+    */
     @Transactional
-    public StorePojo updateStore(StorePojo storePojo) {
-        return  em.merge(storePojo);
+    public void removeOrder(int orderId) {
+        OrderPojo orderToRemove = getOrderbyId(orderId);
+        if (orderToRemove == null) {
+            throw new NotFoundException("order does not found");
+        }
+        else {
+            em.refresh(orderToRemove);
+            em.remove(orderToRemove);
+        }
     }
-
+  //update order (addOrderLines)
     @Transactional
-    public StorePojo removeStoreById(int id) {
-        StorePojo pojo = em.find(StorePojo.class, id);
-        em.remove(pojo);
-        return pojo;
+    public OrderPojo addOrderLinesToOrder(int orderId, List<OrderLinePojo> orderLines) {
+        OrderPojo updatedOrder = getOrderbyId(orderId);
+        if (orderLines == null) {
+            throw new NotFoundException("orderLines do not found");
+        }
+        else {
+            updatedOrder.setOrderlines(orderLines);
+        }
+        em.merge(updatedOrder);
+        return updatedOrder;
     }
-
-    public List<OrderPojo> getAllOrders() {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<OrderPojo> q = cb.createQuery(OrderPojo.class);
-        Root<OrderPojo> o = q.from(OrderPojo.class);
-        q.select(o);
-        TypedQuery<OrderPojo> q2 = em.createQuery(q);
-        return q2.getResultList();
-
-    }
-
-    public List<OrderPojo> getCustomerALLOrders(int custID) {
-        CustomerPojo customerPojo = em.find(CustomerPojo.class, custID);
-        TypedQuery<OrderPojo> query = em.createQuery("select o from OrderPojo o   where o.owningCustomer.id=:id", OrderPojo.class);
-        query.setParameter("id", custID);
-        return query.getResultList();
-
-    }
-
-    public OrderPojo getOrderById(int id) {
-        return em.find(OrderPojo.class, id);
-
-    }
-
+    /*
+     * OrderLine
+     */
+    /*
+>>>>>>> d1364d5... Doris's Dec2 work
     @Transactional
-    public OrderPojo updateOrder(OrderPojo orderPojo) {
-        return em.merge(orderPojo);
+    public OrderLinePojo persistOrderL(OrderLinePojo newOrderLine) {
+        em.persist(newOrderLine);
+        return newOrderLine;
+    }
+    public List<OrderLinePojo> getAllOrderLines() {
+        //example of using JPA Criteria query instead of JPQL
+        try {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<OrderLinePojo> q = cb.createQuery(OrderLinePojo.class);
+            Root<OrderLinePojo> c = q.from(OrderLinePojo.class);
+            q.select(c);
+            TypedQuery<OrderLinePojo> q2 = em.createQuery(q);
+            List<OrderLinePojo> allOrderLines = q2.getResultList();
+            return allOrderLines;
+        }
+        catch (Exception e) {
+            return null;
+        }
     }
 
-
-    @Transactional
-    public OrderPojo removeOrderById(int id) {
-        OrderPojo pojo = em.find(OrderPojo.class, id);
-        em.remove(pojo);
-        return pojo;
-
+    public OrderLinePojo getOrderLinebyId(int orderId, int orderLineId) {
+        OrderPojo aOrder = getOrderbyId(orderId);
+        aOrder.get
+        return em.find(OrderLinePojo.class, orderLineId);
     }
-
-
-
-    public List<OrderLinePojo> getOneOrderALLOrderLineById(int oId) {
-        TypedQuery<OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo ol where ol.pk.owningOrderId=:id", OrderLinePojo.class);
-        query.setParameter("id", oId);
-        return query.getResultList();
-
-    }
-
-    public OrderLinePojo getOrderLineByOrderLineNo(int no) {
-        TypedQuery<OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo ol where ol.pk.orderLineNo=:no", OrderLinePojo.class);
-        query.setParameter("no", no);
-        return query.getSingleResult();
-
-    }
-
-    @Transactional
-    public OrderLinePojo updateOrderLine(OrderLinePojo orderLinePojo) {
-        return   em.merge(orderLinePojo);
-    }
-
-
-    @Transactional
-    public OrderLinePojo removeOrderLineByNo(int No) {
-        OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
-        em.remove(orderLinePojo);
-        return orderLinePojo;
-
-    }
-
-
+    */
 }

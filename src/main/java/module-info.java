@@ -1,7 +1,4 @@
-/**
- *
- */
-open module com.algonquincollege.cst.rest.orderSystem {
+open module com.algonquincollege.cst8277.rest.orderSystem {
 	requires org.slf4j;
     // Jakarta EE 8
     requires java.annotation;

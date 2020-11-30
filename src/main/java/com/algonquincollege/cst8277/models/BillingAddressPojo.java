@@ -4,23 +4,28 @@
  *
  * @author (original) Mike Norman
  * 
- * update by : I. Am. A. Student 040nnnnnnn
+ * update by :
+ * Lai Shan Law (040595733)
+ * Siyang Xiong (040938012)
+ * Angela Zhao (040529234)
+ * 
+ * @date 2020-11-21
  */
 package com.algonquincollege.cst8277.models;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
 import java.io.Serializable;
 
-/**
- * Description: model for the BillingAddress object
- */
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+
 @Entity(name = "BillingAddress")
+@Table(name = "BILLINGADDRESS")
+@PrimaryKeyJoinColumn(name = "BILLING_ADDR_ID")
 @DiscriminatorValue(value = "B")
 public class BillingAddressPojo extends AddressPojo implements Serializable {
-    /**
-     * explicit set serialVersionUID
-     */
+    /** explicit set serialVersionUID */
     private static final long serialVersionUID = 1L;
 
     protected boolean isAlsoShipping;

@@ -4,13 +4,13 @@
     <jdbc-connection-pool
         datasource-classname="org.h2.jdbcx.JdbcDataSource" 
         res-type="javax.sql.DataSource" 
-        name="customersConnectionPool"> 
+        name="orderSystemConnectionPool"> 
         <property name="User" value="sa"/> 
         <property name="Password" value="password"/>
         <!-- <property name="URL" value="jdbc:h2:mem:20fcustomers"/> -->
         <property name="URL" value="jdbc:h2:tcp://localhost:12345/~/20fGroupProject"/>
     </jdbc-connection-pool>
-    <jdbc-resource jndi-name="java:app/jdbc/customers" pool-name="customersConnectionPool">
+    <jdbc-resource jndi-name="java:app/jdbc/orderSystem" pool-name="orderSystemConnectionPool">
         <description>DataSource for ACME Customers</description>
     </jdbc-resource>
  </resources>

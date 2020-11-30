@@ -3,8 +3,13 @@
  * Course materials (20F) CST 8277
  *
  * @author (original) Mike Norman
- *
- * update by : I. Am. A. Student 040nnnnnnn
+ * 
+ * update by :
+ * Lai Shan Law (040595733)
+ * Siyang Xiong (040938012)
+ * Angela Zhao (040529234)
+ * 
+ * @date 2020-11-21
  */
 package com.algonquincollege.cst8277.models;
 
@@ -13,8 +18,17 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import static com.algonquincollege.cst8277.models.SecurityRole.ROLE_BY_NAME_QUERY;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
 
 /**
@@ -22,13 +36,10 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "SECURITY_ROLE")
-@NamedQueries({
-        @NamedQuery(name = "roleByName", query = "select sr from SecurityRole sr where sr.roleName =:param1 ")}
-)
+@NamedQuery(name=ROLE_BY_NAME_QUERY, query = "select r from SecurityRole r where r.roleName = :param1")
+
 public class SecurityRole implements Serializable {
-    /**
-     * explicit set serialVersionUID
-     */
+    /** explicit set serialVersionUID */
     private static final long serialVersionUID = 1L;
 
     public static final String ROLE_BY_NAME_QUERY = "roleByName";
@@ -40,37 +51,31 @@ public class SecurityRole implements Serializable {
     public SecurityRole() {
         super();
     }
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ROLE_ID")
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
-
     @Column(name = "ROLENAME")
     public String getRoleName() {
         return roleName;
     }
-
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
-
     @ManyToMany(mappedBy = "roles")
     @JsonInclude(Include.NON_NULL)
     public Set<SecurityUser> getUsers() {
         return users;
     }
-
     public void setUsers(Set<SecurityUser> users) {
         this.users = users;
     }
-
     public void addUserToRole(SecurityUser user) {
         getUsers().add(user);
     }
@@ -94,7 +99,7 @@ public class SecurityRole implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        SecurityRole other = (SecurityRole) obj;
+        SecurityRole other = (SecurityRole)obj;
         if (id != other.id) {
             return false;
         }
