@@ -26,13 +26,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.algonquincollege.cst8277.models.OrderPojo;
+import com.algonquincollege.cst8277.models.*;
 import org.glassfish.soteria.WrappingCallerPrincipal;
 
 import com.algonquincollege.cst8277.ejb.CustomerService;
-import com.algonquincollege.cst8277.models.AddressPojo;
-import com.algonquincollege.cst8277.models.CustomerPojo;
-import com.algonquincollege.cst8277.models.SecurityUser;
 
 @Path(CUSTOMER_RESOURCE_NAME)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -82,36 +79,95 @@ public class CustomerResource {
         return response;
     }
 
-    @GET
-    @Path(CUSTOMER_RESOURCE_ORDER)
-    public Response getCustomerAllOrder(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
-        List<OrderPojo> allOrders = customerServiceBean.getCustomerALLOrders(id);
-        return Response.ok(allOrders).build();
-
-    }
 
     @POST
-    @Path(SLASH+RESOURCE_NEW)
+    @Path("")
     @Transactional
     public Response addCustomer(CustomerPojo newCustomer) {
-        Response response = null;
         CustomerPojo newCustomerWithIdTimestamps = customerServiceBean.persistCustomer(newCustomer);
         //build a SecurityUser linked to the new customer
         customerServiceBean.buildUserForNewCustomer(newCustomerWithIdTimestamps);
-        response = Response.ok(newCustomerWithIdTimestamps).build();
-        return response;
+        return Response.ok(newCustomerWithIdTimestamps).build();
+
     }
+
+    @DELETE
+    @Path("{id:}")
+    @Transactional
+    public Response deleteCustomerById(@PathParam("id") int id) {
+        CustomerPojo customerPojo = customerServiceBean.removeCustomerById(id);
+        return Response.ok(customerPojo).build();
+    }
+
+    @PUT
+    @Path("{id:}")
+    @Transactional
+    public Response updateCustomerByid(@PathParam("id") int id, CustomerPojo customerPojo) {
+        customerPojo.setId(id);
+        CustomerPojo updateCustomer = customerServiceBean.updateCustomer(customerPojo);
+        return Response.ok(updateCustomer).build();
+    }
+
 
     @POST
-    @Path(RESOURCE_PATH_ID_PATH+SLASH+CUSTOMER_ADDRESS_SUBRESOURCE_NAME)
+    @Path(RESOURCE_PATH_ID_PATH + SLASH + CUSTOMER_ADDRESS_SUBRESOURCE_NAME)
     @Transactional
     public Response addAddressForCustomer(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, AddressPojo newAddress) {
-        Response response = null;
         CustomerPojo updatedCustomer = customerServiceBean.setAddressFor(id, newAddress);
-        response = Response.ok(updatedCustomer).build();
-        return response;
+        return Response.ok(updatedCustomer).build();
     }
 
+    @GET
+    @Path("{id:}/address")
+    public Response getCustomerAllAddress(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
+        List<AddressPojo> customerAlladdressByCustId = customerServiceBean.getCustomerAlladdressByCustId(id);
+        return Response.ok(customerAlladdressByCustId).build();
+    }
 
+    @GET
+    @Path("{id:}/address/{id2:}")
+    public Response getCustomerAllAddress(@PathParam("id") int id, @PathParam("id2") int id2) {
+        AddressPojo customerAlladdressByCustId = customerServiceBean.getCustomerAddressByAddressId(id, id2);
+        return Response.ok(customerAlladdressByCustId).build();
+    }
 
+    @DELETE
+    @Path("/address/{id:}")
+    @Transactional
+    public Response deleteCustomerAddressByid(@PathParam("id") int id) {
+        AddressPojo addressPojo = customerServiceBean.removeAddressByid(id);
+        return Response.ok(addressPojo).build();
+    }
+
+    @PUT
+    @Path("/address/{id:}")
+    @Transactional
+    public Response updateAddressByid(@PathParam("id") int id, AddressPojo ap) {
+        ap.setId(id);
+        AddressPojo addressPojo = customerServiceBean.updateAddress(ap);
+        return Response.ok(addressPojo).build();
+    }
+//    @GET
+//    @Path(CUSTOMER_RESOURCE_ORDER)
+//    public Response getCustomerAllOrder(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
+//        List<OrderPojo> allOrders = customerServiceBean.getCustomerALLOrders(id);
+//        return Response.ok(allOrders).build();
+//
+//    }
+
+//    @GET
+//    @Path("{id:}/order/{id2:}/orderline")
+//    public Response getCustomerOrderLineByOrderId(@PathParam("id") int id, @PathParam("id2") int id2) {
+//
+//        List<OrderLinePojo> allOrderLineById = customerServiceBean.getOneOrderALLOrderLineById(id2);
+//        return Response.ok(allOrderLineById).build();
+//    }
+
+//    @GET
+//    @Path("{id:}/order/{id2:}/")
+//    public Response getCustomerAllOrderByOrderId(@PathParam("id") int id, @PathParam("id2") int id2) {
+//
+//        OrderPojo orderById = customerServiceBean.getOrderById(id2);
+//        return Response.ok(orderById).build();
+//    }
 }

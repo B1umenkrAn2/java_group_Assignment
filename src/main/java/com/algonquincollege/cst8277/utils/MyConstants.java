@@ -42,6 +42,7 @@ public interface MyConstants {
     public static final String STORE_RESOURCE_NAME = "store";
     public static final String CUSTOMER_ADDRESS_SUBRESOURCE_NAME = "address";
     public static final String RESOURCE_NEW = "new";
+    public static final String RESOURCE_UPDATE = "update";
     public static final String CUSTOMER_ADDRESS_RESOURCE_PATH =
             RESOURCE_PATH_ID_PATH + SLASH + CUSTOMER_ADDRESS_SUBRESOURCE_NAME;
 

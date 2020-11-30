@@ -8,6 +8,8 @@
  */
 package com.algonquincollege.cst8277.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -49,6 +51,7 @@ public abstract class PojoBase implements Serializable {
     public void setUpdatedDate(LocalDateTime updated) {
         this.updated = updated;
     }
+    @JsonIgnore
     @Version
     public int getVersion() {
         return version;
@@ -56,7 +59,9 @@ public abstract class PojoBase implements Serializable {
     public void setVersion(int version) {
         this.version = version;
     }
+
     @Column(name = "CREATED")
+    @JsonIgnore
     public LocalDateTime getCreated() {
         return created;
     }
@@ -64,7 +69,9 @@ public abstract class PojoBase implements Serializable {
     public void setCreated(LocalDateTime created) {
         this.created = created;
     }
+
     @Column(name = "UPDATED")
+    @JsonIgnore
     public LocalDateTime getUpdated() {
         return updated;
     }

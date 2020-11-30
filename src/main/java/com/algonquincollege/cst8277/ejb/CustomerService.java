@@ -54,6 +54,31 @@ public class CustomerService implements Serializable {
         return em.find(CustomerPojo.class, custPK);
     }
 
+    public List<AddressPojo> getCustomerAlladdressByCustId(int id) {
+        TypedQuery<AddressPojo> query = em.createQuery("select ap from AddressPojo ap join CustomerPojo c on c.billingAddress.id = ap.id or c.shippingAddress.id = ap.id where c.id =:id", AddressPojo.class);
+        query.setParameter("id", id);
+        return query.getResultList();
+    }
+
+    public AddressPojo getCustomerAddressByAddressId(int id, int id2) {
+        TypedQuery<AddressPojo> query = em.createQuery("select ap from AddressPojo ap join CustomerPojo c on c.billingAddress.id = ap.id or c.shippingAddress.id = ap.id where c.id =:id and ap.id =:id2", AddressPojo.class);
+        query.setParameter("id", id);
+        query.setParameter("id2", id2);
+        return query.getSingleResult();
+    }
+
+    @Transactional
+    public AddressPojo removeAddressByid(int id) {
+        AddressPojo addressPojo = em.find(AddressPojo.class, id);
+        em.remove(addressPojo);
+        return addressPojo;
+    }
+
+    @Transactional
+    public AddressPojo updateAddress(AddressPojo ap) {
+        return em.merge(ap);
+    }
+
     @Transactional
     public CustomerPojo persistCustomer(CustomerPojo newCustomer) {
         em.persist(newCustomer);
@@ -61,40 +86,10 @@ public class CustomerService implements Serializable {
 
     }
 
-    @Transactional
-    public CustomerPojo updateCustomerFirstName(int id, String newFName) {
-        CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
-        customerPojo.setFirstName(newFName);
-        em.merge(customerPojo);
-        return customerPojo;
-
-    }
 
     @Transactional
-    public CustomerPojo updateCustomerLastName(int id, String newLName) {
-        CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
-        customerPojo.setLastName(newLName);
-        em.merge(customerPojo);
-        return customerPojo;
-
-    }
-
-    @Transactional
-    public CustomerPojo updateCustomerEmail(int id, String newEmail) {
-        CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
-        customerPojo.setEmail(newEmail);
-        em.merge(customerPojo);
-        return customerPojo;
-
-    }
-
-    @Transactional
-    public CustomerPojo updateCustomerPhone(int id, String newPhone) {
-        CustomerPojo customerPojo = em.find(CustomerPojo.class, id);
-        customerPojo.setPhoneNumber(newPhone);
-        em.merge(customerPojo);
-        return customerPojo;
-
+    public CustomerPojo updateCustomer(CustomerPojo cp) {
+        return em.merge(cp);
     }
 
 
@@ -159,33 +154,17 @@ public class CustomerService implements Serializable {
     }
 
     @Transactional
-    public ProductPojo updateProductDesc(int id, String newDesc) {
+    public ProductPojo updateProduct(ProductPojo pp) {
 
-        ProductPojo productPojo = em.find(ProductPojo.class, id);
-        productPojo.setDescription(newDesc);
-        em.merge(productPojo);
-        return productPojo;
-
+        return  em.merge(pp);
     }
 
-    @Transactional
-    public ProductPojo updateProductSN(int id, String newSN) {
-
-        ProductPojo productPojo = em.find(ProductPojo.class, id);
-        productPojo.setSerialNo(newSN);
-        em.merge(productPojo);
-        return productPojo;
-
-    }
 
     @Transactional
     public ProductPojo removeProductById(int id) {
-
         ProductPojo pojo = em.find(ProductPojo.class, id);
         em.remove(pojo);
         return pojo;
-
-
     }
 
 
@@ -209,23 +188,15 @@ public class CustomerService implements Serializable {
     }
 
     @Transactional
-    public StorePojo updateStoreName(int Id, String storeName) {
-
-        StorePojo updatedStore = em.find(StorePojo.class, Id);
-        updatedStore.setStoreName(storeName);
-        em.merge(updatedStore);
-        return updatedStore;
-
-
+    public StorePojo updateStore(StorePojo storePojo) {
+        return  em.merge(storePojo);
     }
 
     @Transactional
     public StorePojo removeStoreById(int id) {
-
         StorePojo pojo = em.find(StorePojo.class, id);
         em.remove(pojo);
         return pojo;
-
     }
 
     public List<OrderPojo> getAllOrders() {
@@ -252,13 +223,8 @@ public class CustomerService implements Serializable {
     }
 
     @Transactional
-    public OrderPojo updateDescriptionForOrder(int Id, String desc) {
-        OrderPojo updatedOrder = em.find(OrderPojo.class, Id);
-        updatedOrder.setDescription(desc);
-        em.merge(updatedOrder);
-        return updatedOrder;
-
-
+    public OrderPojo updateOrder(OrderPojo orderPojo) {
+        return em.merge(orderPojo);
     }
 
 
@@ -270,7 +236,7 @@ public class CustomerService implements Serializable {
 
     }
 
-    //TODO orderLine
+
 
     public List<OrderLinePojo> getOneOrderALLOrderLineById(int oId) {
         TypedQuery<OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo ol where ol.pk.owningOrderId=:id", OrderLinePojo.class);
@@ -287,22 +253,10 @@ public class CustomerService implements Serializable {
     }
 
     @Transactional
-    public OrderLinePojo updateOrderLineAmountByOrderLineNo(int No, double newAmount) {
-        OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
-        orderLinePojo.setAmount(newAmount);
-        em.merge(orderLinePojo);
-        return orderLinePojo;
-
+    public OrderLinePojo updateOrderLine(OrderLinePojo orderLinePojo) {
+        return   em.merge(orderLinePojo);
     }
 
-    @Transactional
-    public OrderLinePojo updateOrderLinePriceByOrderLineNo(int No, double newPrice) {
-        OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
-        orderLinePojo.setPrice(newPrice);
-        em.merge(orderLinePojo);
-        return orderLinePojo;
-
-    }
 
     @Transactional
     public OrderLinePojo removeOrderLineByNo(int No) {
