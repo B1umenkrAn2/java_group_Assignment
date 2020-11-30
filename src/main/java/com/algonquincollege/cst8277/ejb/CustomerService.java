@@ -156,7 +156,7 @@ public class CustomerService implements Serializable {
     @Transactional
     public ProductPojo updateProduct(ProductPojo pp) {
 
-        return  em.merge(pp);
+        return em.merge(pp);
     }
 
 
@@ -189,7 +189,7 @@ public class CustomerService implements Serializable {
 
     @Transactional
     public StorePojo updateStore(StorePojo storePojo) {
-        return  em.merge(storePojo);
+        return em.merge(storePojo);
     }
 
     @Transactional
@@ -227,6 +227,13 @@ public class CustomerService implements Serializable {
         return em.merge(orderPojo);
     }
 
+    @Transactional
+    public CustomerPojo addOrderForCustomer(int custid, OrderPojo orderPojo) {
+        CustomerPojo customerPojo = em.find(CustomerPojo.class, custid);
+        customerPojo.getOrders().add(orderPojo);
+        em.merge(customerPojo);
+        return customerPojo;
+    }
 
     @Transactional
     public OrderPojo removeOrderById(int id) {
@@ -236,7 +243,13 @@ public class CustomerService implements Serializable {
 
     }
 
-
+    @Transactional
+    public OrderPojo addOrderLineToOrder(int id,OrderLinePojo orderLinePojo){
+        OrderPojo orderPojo = em.find(OrderPojo.class, id);
+        orderPojo.getOrderlines().add(orderLinePojo);
+        em.merge(orderPojo);
+        return orderPojo;
+    }
 
     public List<OrderLinePojo> getOneOrderALLOrderLineById(int oId) {
         TypedQuery<OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo ol where ol.pk.owningOrderId=:id", OrderLinePojo.class);
@@ -254,7 +267,9 @@ public class CustomerService implements Serializable {
 
     @Transactional
     public OrderLinePojo updateOrderLine(OrderLinePojo orderLinePojo) {
-        return   em.merge(orderLinePojo);
+        return em.merge(orderLinePojo);
+
+
     }
 
 

@@ -3,31 +3,27 @@
  * Course materials (20F) CST 8277
  *
  * @author (original) Mike Norman
- * 
+ *
  * update by : I. Am. A. Student 040nnnnnnn
  *
  */
 package com.algonquincollege.cst8277.rest;
 
-import static com.algonquincollege.cst8277.utils.MyConstants.RESOURCE_PATH_ID_ELEMENT;
-import static com.algonquincollege.cst8277.utils.MyConstants.RESOURCE_PATH_ID_PATH;
-import static com.algonquincollege.cst8277.utils.MyConstants.STORE_RESOURCE_NAME;
-
 import java.util.List;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.security.enterprise.SecurityContext;
 import javax.servlet.ServletContext;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.transaction.Transactional;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.algonquincollege.cst8277.ejb.CustomerService;
 import com.algonquincollege.cst8277.models.StorePojo;
+
+import static com.algonquincollege.cst8277.utils.MyConstants.*;
 
 public class StoreResource {
     @EJB
@@ -36,18 +32,43 @@ public class StoreResource {
     @Inject
     protected ServletContext servletContext;
 
+    @Inject
+    protected SecurityContext sc;
+
+    @GET
+    @Path(STORE_RESOURCE_NAME)
     public Response getStores() {
         servletContext.log("retrieving all stores ...");
         List<StorePojo> stores = customerServiceBean.getAllStores();
-        Response response = Response.ok(stores).build();
-        return response;
+        return Response.ok(stores).build();
     }
 
+
+    @GET
+    @Path(RESOURCE_PATH_ID_PATH)
     public Response getStoreById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to retrieve specific store " + id);
         StorePojo theStore = customerServiceBean.getStoreById(id);
-        Response response = Response.ok(theStore).build();
-        return response;
+        return Response.ok(theStore).build();
+    }
+
+    @PUT
+    @Path(RESOURCE_PATH_ID_PATH)
+    @Transactional
+    public Response updateStoreById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, StorePojo storePojo) {
+        servletContext.log("try to update specific store " + id);
+        storePojo.setId(id);
+        StorePojo theStore = customerServiceBean.updateStore(storePojo);
+        return Response.ok(theStore).build();
+    }
+
+    @DELETE
+    @Path(RESOURCE_PATH_ID_PATH)
+    @Transactional
+    public Response deleteStoreById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
+        servletContext.log("try to delete specific store " + id);
+        StorePojo theStore = customerServiceBean.removeStoreById(id);
+        return Response.ok(theStore).build();
     }
 
 }
