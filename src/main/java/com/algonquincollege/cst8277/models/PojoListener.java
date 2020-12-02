@@ -2,9 +2,9 @@
  * File: PojoListener.java
  * Course materials (20F) CST 8277
  *
- * @author (original) Mike Norman
- * 
- * update by : I. Am. A. Student 040nnnnnnn
+ * update by : Lai Shan Law (040595733)
+ *             Siyang Xiong (040938012)
+ *             Angela Zhao  (040529234)
  */
 package com.algonquincollege.cst8277.models;
 
@@ -12,30 +12,34 @@ import java.time.LocalDateTime;
 
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
-import java.time.LocalDateTime;
 
+/**
+ * 
+ * JPA listener class for audit member fields
+ *
+ */
 public class PojoListener {
-
+    
     /**
-     *  use to setup new customer updateDate,createDate and version
-     * @param cust new customer
+     * Pre-Persit operation to set "created" and "updated"
+     * audit member fields
+     *  
+     * @param pojoBase the base class which has the two audit fields
      */
     @PrePersist
-    public void setCreatedOnDate(PojoBase cust) {
+    public void setCreatedOnDate(PojoBase pojoBase) {
         LocalDateTime now = LocalDateTime.now();
-        cust.setCreated(now);
-        //might as well call setUpdatedDate as well
-        cust.setUpdated(now);
-        cust.setVersion(1);
+        pojoBase.setCreatedDate(now);
+        pojoBase.setUpdatedDate(now);
     }
 
     /**
-     *  use to setup  customer updateDate and version before update
-     * @param cust edit customer
+     *  Pre-Update operation to set "updated" audtit member field
+     *  
+     * @param pojoBase the base class which has the two audit fields
      */
     @PreUpdate
-    public void setUpdatedDate(PojoBase cust) {
-        cust.setUpdated(LocalDateTime.now());
-        cust.setVersion(cust.getVersion()+1);
+    public void setUpdatedDate(PojoBase pojoBase) {
+        pojoBase.setUpdatedDate(LocalDateTime.now());
     }
 }

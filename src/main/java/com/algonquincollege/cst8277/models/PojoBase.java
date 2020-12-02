@@ -4,7 +4,9 @@
  *
  * @author (original) Mike Norman
  * 
- * update by : I. Am. A. Student 040nnnnnnn
+ * update by : Lai Shan Law (040595733)
+ *             Siyang Xiong (040938012)
+ *             Angela Zhao  (040529234)
  */
 package com.algonquincollege.cst8277.models;
 
@@ -18,39 +20,51 @@ import javax.persistence.*;
 /**
  * Abstract class that is base of (class) hierarchy for all c.a.cst8277.models @Entity classes
  */
+
 @MappedSuperclass
-@EntityListeners(PojoListener.class)
 @Access(AccessType.PROPERTY) // NOTE: by using this annotations, any annotation on a field is ignored without warning
+@EntityListeners(PojoListener.class)
 public abstract class PojoBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Object id
+     */
     protected int id;
+    /**
+     * Object created timestamp
+     */
     protected LocalDateTime created;
+    /**
+     * Object updated timestamp
+     */
     protected LocalDateTime updated;
+    /**
+     * Object tracking version
+     */
     protected int version;
 
+    /**
+     * Getter of id
+     * 
+     * @return current value of id
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
+    
+    /**
+     * Setter of id
+     * 
+     * @param id new value of id
+     */
     public void setId(int id) {
         this.id = id;
     }
 
-    public LocalDateTime getCreatedDate() {
-        return created;
-    }
-    public void setCreatedDate(LocalDateTime created) {
-        this.created = created;
-    }
-
-    public LocalDateTime getUpdatedDate() {
-        return updated;
-    }
-    public void setUpdatedDate(LocalDateTime updated) {
-        this.updated = updated;
-    }
+    
     @JsonIgnore
     @Version
     public int getVersion() {
@@ -60,23 +74,43 @@ public abstract class PojoBase implements Serializable {
         this.version = version;
     }
 
-    @Column(name = "CREATED")
+    /**
+     * Getter of "created" member variable
+     * 
+     * @return
+     */
     @JsonIgnore
-    public LocalDateTime getCreated() {
+    @Column(name = "CREATED")
+    public LocalDateTime getCreatedDate() {
         return created;
     }
 
-    public void setCreated(LocalDateTime created) {
+    /**
+     * Setter of "created" member variable
+     *
+     * @param created new value for "created"
+     */
+    public void setCreatedDate(LocalDateTime created) {
         this.created = created;
     }
 
-    @Column(name = "UPDATED")
+    /**
+     * Getter of "updated" member variable
+     * 
+     * @return current value for "updated"
+     */
     @JsonIgnore
-    public LocalDateTime getUpdated() {
+    @Column(name = "UPDATED")
+    public LocalDateTime getUpdatedDate() {
         return updated;
     }
 
-    public void setUpdated(LocalDateTime updated) {
+    /**
+     * Setter of "updated" member variable
+     * 
+     * @param updated new value for "updated" member variable
+     */
+    public void setUpdatedDate(LocalDateTime updated) {
         this.updated = updated;
     }
 
