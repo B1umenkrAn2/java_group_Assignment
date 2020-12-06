@@ -4,7 +4,10 @@
  *
  * @author (original) Mike Norman
  *
- * update by : I. Am. A. Student 040nnnnnnn
+ * update by : Lai Shan Law (040595733)
+ *             Siyang Xiong (040938012)
+ *             Angela Zhao  (040529234)
+ *             
  */
 package com.algonquincollege.cst8277.models;
 
@@ -22,6 +25,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "SECURITY_ROLE")
+@Access(AccessType.PROPERTY)
 @NamedQueries({
         @NamedQuery(name = "roleByName", query = "select sr from SecurityRole sr where sr.roleName =:param1 ")}
 )
@@ -33,14 +37,31 @@ public class SecurityRole implements Serializable {
 
     public static final String ROLE_BY_NAME_QUERY = "roleByName";
 
+    /**
+     * Object id
+     */
     protected int id;
+    /**
+     * Role name
+     */
     protected String roleName;
+    /**
+     * List of security user granted with this security role
+     */
     protected Set<SecurityUser> users;
 
+    /**
+     * Default constructor
+     */
     public SecurityRole() {
         super();
     }
 
+    /**
+     * Getter for id
+     * 
+     * @return current value of id
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ROLE_ID")
@@ -48,29 +69,59 @@ public class SecurityRole implements Serializable {
         return id;
     }
 
+    /**
+     * Setter for id
+     * 
+     * @param id new value for id
+     */
     public void setId(int id) {
         this.id = id;
     }
 
-    @Column(name = "ROLENAME")
+    
+    /**
+     * Getter for roleName
+     * 
+     * @return current value of roleName
+     */
     public String getRoleName() {
         return roleName;
     }
 
+    /**
+     * Setter for roleName
+     * 
+     * @param roleName new value for roleName
+     */
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
 
+    /**
+     * Getter for users
+     * 
+     * @return list of security users
+     */
     @ManyToMany(mappedBy = "roles")
     @JsonInclude(Include.NON_NULL)
     public Set<SecurityUser> getUsers() {
         return users;
     }
 
+    /**
+     * Setter for users
+     * 
+     * @param users new list of security users
+     */
     public void setUsers(Set<SecurityUser> users) {
         this.users = users;
     }
 
+    /**
+     * Add a security user to this role
+     * 
+     * @param user the security user to be added
+     */
     public void addUserToRole(SecurityUser user) {
         getUsers().add(user);
     }

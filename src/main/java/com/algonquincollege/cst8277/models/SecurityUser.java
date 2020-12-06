@@ -4,7 +4,9 @@
  *
  * @author (original) Mike Norman
  *
- * update by : I. Am. A. Student 040nnnnnnn
+ * update by : Lai Shan Law (040595733)
+ *             Siyang Xiong (040938012)
+ *             Angela Zhao  (040529234)
  */
 package com.algonquincollege.cst8277.models;
 
@@ -26,10 +28,11 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "SECURITY_USER")
+@Access(AccessType.PROPERTY)
 @NamedQueries({
-        @NamedQuery(name = "userByName", query = "select sr from SecurityUser sr where sr.username =:param1 "),
-        @NamedQuery(name="userForOwningCust",query = "select sr from SecurityUser sr where sr.customer.id=:id")}
-)
+        @NamedQuery(name = "userByName", query = "select sr from SecurityUser sr where sr.username = :param1"),
+        @NamedQuery(name = "userForOwningCust", query = "select sr from SecurityUser sr where sr.customer.id = :param1")
+})
 public class SecurityUser implements Serializable, Principal {
     /**
      * explicit set serialVersionUID
@@ -41,16 +44,39 @@ public class SecurityUser implements Serializable, Principal {
     public static final String SECURITY_USER_BY_NAME_QUERY =
             "userByName";
 
+    /**
+     * Object id
+     */
     protected int id;
+    /**
+     * User name
+     */
     protected String username;
+    /**
+     * Hashed password
+     */
     protected String pwHash;
+    /**
+     * List of security roles granted to this user
+     */
     protected Set<SecurityRole> roles = new HashSet<>();
+    /**
+     * The customer wrapped by this security user
+     */
     protected CustomerPojo cust;
 
+    /**
+     * Default constructor
+     */
     public SecurityUser() {
         super();
     }
 
+    /**
+     * Getter for the id
+     * 
+     * @return current value for id
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_ID")
@@ -58,29 +84,57 @@ public class SecurityUser implements Serializable, Principal {
         return id;
     }
 
+    /**
+     * Setter for id
+     * 
+     * @param id new value for id
+     */
     public void setId(int id) {
         this.id = id;
     }
 
-    @Column(name = "USERNAME")
+    /**
+     * Getter for username
+     * 
+     * @return current value of username
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Setter for username
+     * 
+     * @param username new value for username
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
-    @Column(name = "PWHASH")
+    /**
+     * Getter for hashed password
+     * 
+     * @return current value of hashed password
+     */
     @JsonIgnore
     public String getPwHash() {
         return pwHash;
     }
 
+    /**
+     * Setter for hashed password
+     * 
+     * @param pwHash new value for hashed password
+     */
     public void setPwHash(String pwHash) {
         this.pwHash = pwHash;
     }
 
+    /**
+     * Getter for granted roles
+     * 
+     * @return list of granted roles
+     */
     @ManyToMany(targetEntity = SecurityRole.class, cascade = CascadeType.PERSIST)
     @JoinTable(name = "SECURITY_USER_SECURITY_ROLE",
             joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID"),
@@ -91,9 +145,20 @@ public class SecurityUser implements Serializable, Principal {
         return roles;
     }
 
+    /**
+     * Setter for granted roles
+     * 
+     * @param roles new granted roles
+     */
     public void setRoles(Set<SecurityRole> roles) {
         this.roles = roles;
     }
+    
+    /**
+     * Getter for wrappered customer
+     * 
+     * @return current wrappered customer
+     */
 
     @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE})
     @JoinColumn(name = "CUSTOMER_ID")
@@ -101,6 +166,11 @@ public class SecurityUser implements Serializable, Principal {
         return cust;
     }
 
+    /**
+     * Sett for wrappered customer
+     * 
+     * @param cust new wrapper customer
+     */
     public void setCustomer(CustomerPojo cust) {
         this.cust = cust;
     }
