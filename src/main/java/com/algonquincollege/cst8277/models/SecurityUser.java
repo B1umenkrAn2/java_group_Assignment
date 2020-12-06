@@ -23,10 +23,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import javax.persistence.*;
 
-
-import static com.algonquincollege.cst8277.models.SecurityUser.USER_FOR_OWNING_CUST_QUERY;
-import static com.algonquincollege.cst8277.models.SecurityUser.SECURITY_USER_BY_NAME_QUERY;
-
 /**
  * User class used for (JSR-375) Java EE Security authorization/authentication
  */
@@ -34,8 +30,8 @@ import static com.algonquincollege.cst8277.models.SecurityUser.SECURITY_USER_BY_
 @Table(name = "SECURITY_USER")
 @Access(AccessType.PROPERTY)
 @NamedQueries({
-        @NamedQuery(name = SECURITY_USER_BY_NAME_QUERY, query = "SELECT sr FROM SecurityUser sr WHERE sr.username =:param1"),
-        @NamedQuery(name = USER_FOR_OWNING_CUST_QUERY,query = "SELECT sr FROM SecurityUser sr WHERE sr.customer.id=:id")
+        @NamedQuery(name = "userByName", query = "select sr from SecurityUser sr where sr.username = :param1"),
+        @NamedQuery(name = "userForOwningCust", query = "select sr from SecurityUser sr where sr.customer.id = :param1")
 })
 public class SecurityUser implements Serializable, Principal {
     /**

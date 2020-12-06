@@ -62,7 +62,9 @@ public class CustomerService implements Serializable {
      * @return whole list of customer
      */
     public List<CustomerPojo> getAllCustomers() {
-        TypedQuery<CustomerPojo> query = em.createQuery(CustomerPojo.ALL_CUSTOMERS_QUERY_NAME, CustomerPojo.class);
+        TypedQuery<CustomerPojo> query = em.createNamedQuery(CustomerPojo.ALL_CUSTOMERS_QUERY_NAME,
+                CustomerPojo.class);
+        
         return query.getResultList();
     }
 
@@ -300,6 +302,16 @@ public class CustomerService implements Serializable {
         }
     }
 
+    @Transactional
+    public ProductPojo addNewProduct(ProductPojo newProduct) {
+        if (em.find(ProductPojo.class, newProduct.getId()) != null) {
+            return null;
+        }
+        em.persist(newProduct);
+        
+        return newProduct;
+    }
+        
     /**
      * Retrieve product by its id
      * 
@@ -308,6 +320,27 @@ public class CustomerService implements Serializable {
      */
     public ProductPojo getProductById(int prodId) {
         return em.find(ProductPojo.class, prodId);
+    }
+     
+    /**
+     * Retrieve product(s) by description
+     * 
+     * @param prodDescription product description
+     * @return products matched to the description
+     */
+    public List<ProductPojo> getProductByDescription(String prodDescription) {
+        
+        CriteriaBuilder criteriaBuilder  = em.getCriteriaBuilder();
+        CriteriaQuery<ProductPojo> criteria  = criteriaBuilder.createQuery(ProductPojo.class);
+           
+        Root<ProductPojo> root = criteria.from(ProductPojo.class);
+        Predicate predicate = criteriaBuilder.like(root.get(ProductPojo_.description), criteriaBuilder.parameter(String.class, "param1"));
+        criteria.where(predicate);
+        
+        TypedQuery<ProductPojo> query = em.createQuery(criteria).setParameter("param1", "%" + prodDescription + "%");  
+        List<ProductPojo> foundProducts = query.getResultList();
+        
+        return foundProducts;
     }
 
     
@@ -321,7 +354,6 @@ public class CustomerService implements Serializable {
     public ProductPojo updateProduct(ProductPojo product) {
         return  em.merge(product);
     }
-
 
     /**
      * Remmove a product
@@ -345,34 +377,77 @@ public class CustomerService implements Serializable {
         return em.find(OrderPojo.class, orderId);
     }
     
+    /**
+     * Get all stores
+     * 
+     * @return
+     */
     public List<StorePojo> getAllStores() {
 
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<StorePojo> q = cb.createQuery(StorePojo.class);
-        Root<StorePojo> c = q.from(StorePojo.class);
-        q.select(c);
-        TypedQuery<StorePojo> q2 = em.createQuery(q);
-        return q2.getResultList();
-
-
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<StorePojo> criteria = criteriaBuilder.createQuery(StorePojo.class);
+        Root<StorePojo> root = criteria.from(StorePojo.class);
+        criteria.select(root);
+        TypedQuery<StorePojo> query = em.createQuery(criteria);
+        return query.getResultList();
     }
 
+    /**
+     * Add a new store
+     * 
+     * @param newStore new store to add
+     * @return added new store
+     */
+    @Transactional
+    public StorePojo addNewStore(StorePojo newStore) {
+        if (em.find(StorePojo.class, newStore.getId()) != null) {
+            return null;
+        }
+        em.persist(newStore);
+        
+        return newStore;
+    }
+    
+    /**
+     * Get store by id
+     * 
+     * @param id store id
+     * @return found store
+     */
     public StorePojo getStoreById(int id) {
-
         return em.find(StorePojo.class, id);
-
     }
 
+    /**
+     * Update a store
+     * 
+     * @param storePojo store to be updated
+     * @return updated store
+     */
     @Transactional
     public StorePojo updateStore(StorePojo storePojo) {
+        StorePojo existedStore = em.find(StorePojo.class, storePojo.getId());
+        if (existedStore == null) {
+            return null;
+        }
+        
         return  em.merge(storePojo);
     }
 
+    /**
+     * Remove a store by id
+     * 
+     * @param id store id
+     * @return removed store
+     */
     @Transactional
     public StorePojo removeStoreById(int id) {
-        StorePojo pojo = em.find(StorePojo.class, id);
-        em.remove(pojo);
-        return pojo;
+        StorePojo storeToRemove = em.find(StorePojo.class, id);
+        if (storeToRemove == null) {
+            return null;
+        }
+        em.remove(storeToRemove);
+        return storeToRemove;
     }
 
     public List<OrderPojo> getAllOrders() {

@@ -59,6 +59,7 @@ public class CustomerResource {
     public Response getCustomers() {
         servletContext.log("retrieving all customers ...");
         List<CustomerPojo> custs = customerServiceBean.getAllCustomers();
+        servletContext.log("\n\nGot total [" + custs.size() + "] customers\n\n");
         return Response.status(custs == null ? NOT_FOUND : OK).entity(custs).build();
     }
 

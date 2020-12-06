@@ -55,9 +55,7 @@ public class CustomIdentityStoreJPAHelper {
     public SecurityUser findUserByName(String username) {
         SecurityUser user = null;
         try {
-            TypedQuery<SecurityUser> query = em.createQuery("SELECT sr FROM SecurityUser sr WHERE sr.username =:param1",
-//                    SECURITY_USER_BY_NAME_QUERY,
-                    SecurityUser.class);
+            TypedQuery<SecurityUser> query = em.createNamedQuery(SECURITY_USER_BY_NAME_QUERY, SecurityUser.class);
             query.setParameter("param1", username);
             user = query.getSingleResult();
             System.out.println(user);

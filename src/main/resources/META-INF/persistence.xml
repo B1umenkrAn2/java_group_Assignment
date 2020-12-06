@@ -17,7 +17,7 @@
           "drop":            Any artifacts in the database will be deleted on application deployment.
         -->
       <property name="javax.persistence.schema-generation.database.action" value="create"/>
-    <!--  <property name="javax.persistence.sql-load-script-source" value="META-INF/Scripts/init.sql"/> -->
+ <!--    <property name="javax.persistence.sql-load-script-source" value="META-INF/Scripts/init.sql"/> -->
       <!-- eclipselink specific props -->
       <property name="eclipselink.target-database" value="org.eclipse.persistence.platform.database.H2Platform" />
       <property name="eclipselink.target-server" value="Glassfish" />

@@ -39,6 +39,8 @@ public interface MyConstants {
     public static final String CUSTOMER_RESOURCE_NAME = "customer";
     public static final String ORDER_RESOURCE_NAME = "order";
     public static final String PRODUCT_RESOURCE_NAME = "product";
+    public static final String RESOURCE_PATH_DESCRIPTION_ELEMENT = "description";
+    public static final String RESOURCE_PATH_DESCRIPTION_PATH = "/{" + RESOURCE_PATH_DESCRIPTION_ELEMENT + "}";
     public static final String STORE_RESOURCE_NAME = "store";
     public static final String CUSTOMER_ADDRESS_SUBRESOURCE_NAME = "address";
     public static final String RESOURCE_NEW = "new";
@@ -47,7 +49,6 @@ public interface MyConstants {
             RESOURCE_PATH_ID_PATH + SLASH + CUSTOMER_ADDRESS_SUBRESOURCE_NAME;
 
     public static final String CUSTOMER_RESOURCE_ORDER = CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH + ORDER_RESOURCE_NAME;
-
 
     //Security constants
     public static final String USER_ROLE = "USER_ROLE";
