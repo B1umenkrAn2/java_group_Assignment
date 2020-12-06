@@ -3,7 +3,12 @@
  * Course materials (20W) CST 8277
  * @author Mike Norman
  *
- * Note: students do NOT need to change anything in this class
+ * update by :
+ * Lai Shan Law (040595733)
+ * Siyang Xiong (040938012)
+ * Angela Zhao (040529234)
+ *
+ * @date 2020-11-21
  */
 package com.algonquincollege.cst8277.utils;
 

@@ -11,6 +11,8 @@ package com.algonquincollege.cst8277.rest;
 
 import java.util.List;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.security.enterprise.SecurityContext;
@@ -36,6 +38,7 @@ public class StoreResource {
     protected SecurityContext sc;
 
     @GET
+    @RolesAllowed({ADMIN_ROLE})
     @Path(STORE_RESOURCE_NAME)
     public Response getStores() {
         servletContext.log("retrieving all stores ...");
@@ -45,6 +48,7 @@ public class StoreResource {
 
 
     @GET
+    @PermitAll
     @Path(RESOURCE_PATH_ID_PATH)
     public Response getStoreById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to retrieve specific store " + id);
@@ -54,6 +58,7 @@ public class StoreResource {
 
     @PUT
     @Path(RESOURCE_PATH_ID_PATH)
+    @RolesAllowed({ADMIN_ROLE})
     @Transactional
     public Response updateStoreById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, StorePojo storePojo) {
         servletContext.log("try to update specific store " + id);
@@ -64,6 +69,7 @@ public class StoreResource {
 
     @DELETE
     @Path(RESOURCE_PATH_ID_PATH)
+    @RolesAllowed({ADMIN_ROLE})
     @Transactional
     public Response deleteStoreById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to delete specific store " + id);

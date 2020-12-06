@@ -4,14 +4,20 @@
  *
  * @author (original) Mike Norman
  * 
- * update by : I. Am. A. Student 040nnnnnnn
+ * update by :
+ * Lai Shan Law (040595733)
+ * Siyang Xiong (040938012)
+ * Angela Zhao (040529234)
  *
+ * @date 2020-11-21
  */
 package com.algonquincollege.cst8277.rest;
 
 
 import java.util.List;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.security.enterprise.SecurityContext;
@@ -41,6 +47,7 @@ public class ProductResource {
     protected SecurityContext sc;
 
     @GET
+    @PermitAll
     @Path(PRODUCT_RESOURCE_NAME)
     public Response getProducts() {
         servletContext.log("retrieving all products ...");
@@ -49,7 +56,8 @@ public class ProductResource {
     }
 
     @GET
-    @Path("{id}")
+    @PermitAll
+    @Path(RESOURCE_PATH_ID_PATH)
     public Response getProductById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to retrieve specific product " + id);
         ProductPojo theProduct = customerServiceBean.getProductById(id);
@@ -58,6 +66,7 @@ public class ProductResource {
 
     @PUT
     @Path("{id}")
+    @RolesAllowed({ADMIN_ROLE})
     @Transactional
     public Response updateProductById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id,ProductPojo productPojo) {
         servletContext.log("try to update specific product " + id);
@@ -69,6 +78,7 @@ public class ProductResource {
 
     @DELETE
     @Path("{id}")
+    @RolesAllowed({ADMIN_ROLE})
     @Transactional
     public Response deleteProductById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to delete specific product " + id);

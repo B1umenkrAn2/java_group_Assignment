@@ -4,7 +4,12 @@
  *
  * @author (original) Mike Norman
  *
- * update by : I. Am. A. Student 040nnnnnnn
+ * update by :
+ * Lai Shan Law (040595733)
+ * Siyang Xiong (040938012)
+ * Angela Zhao (040529234)
+ *
+ * @date 2020-11-21
  */
 package com.algonquincollege.cst8277.security;
 
@@ -47,7 +52,6 @@ public class CustomIdentityStoreJPAHelper {
             TypedQuery<SecurityUser> query = em.createQuery("select su from SecurityUser su where su.username = :name", SecurityUser.class);
             query.setParameter("name", username);
             user = query.getSingleResult();
-            System.out.println(user);
         } catch (Exception e) {
             e.printStackTrace();
         }
