@@ -58,7 +58,6 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -81,21 +80,23 @@ public class OrderSystemTestSuite {
     static final String APPLICATION_CONTEXT_ROOT = "rest-orderSystem";
     static final String HTTP_SCHEMA = "http";
     static final String HOST = "localhost";
-    static final String SECURITY_USER_FOR_CUSTOMER2 = "user0";
-    //TODO - if you changed your Payara's default port (to say for example 9090)
-    //       your may need to alter this constant
+    static final String SECURITY_USER_FOR_CUSTOMER1 = "user0";
+    static final String SECURITY_USER_FOR_CUSTOMER2 = "user1";
+    
     static final int PORT = 9090;
 
     // test fixture(s)
     static URI uri;
     static HttpAuthenticationFeature adminAuth;
     static HttpAuthenticationFeature userAuth;
+    static HttpAuthenticationFeature user0_Auth;
+    static HttpAuthenticationFeature user1_Auth;
     
     static final String CUST1_FIRSTNAME = "Mike";
     static final String CUST1_LASTNAME = "Norman";
     static final String CUST1_EMAIL = "normanm@algonquincollege.com";
     static final String CUST1_PHONE = "613-111-5555";
-    static CustomerPojo newCustomer = new CustomerPojo();
+//    static CustomerPojo newCustomer = new CustomerPojo("Jim", "Carrey");
     
     
     @BeforeAll
@@ -111,7 +112,8 @@ public class OrderSystemTestSuite {
             .build();
         adminAuth = HttpAuthenticationFeature.basic(DEFAULT_ADMIN_USER, DEFAULT_ADMIN_USER_PASSWORD);
         userAuth = HttpAuthenticationFeature.basic(DEFAULT_USER_PREFIX, DEFAULT_USER_PASSWORD);
-        //userAuth = HttpAuthenticationFeature.basic(SECURITY_USER_FOR_CUSTOMER2, DEFAULT_USER_PASSWORD);
+        user0_Auth = HttpAuthenticationFeature.basic(SECURITY_USER_FOR_CUSTOMER1, DEFAULT_USER_PASSWORD);
+        user1_Auth = HttpAuthenticationFeature.basic(SECURITY_USER_FOR_CUSTOMER2, DEFAULT_USER_PASSWORD);
     }
 
     protected WebTarget webTarget;
@@ -121,10 +123,9 @@ public class OrderSystemTestSuite {
             new ClientConfig().register(MyObjectMapperProvider.class).register(new LoggingFeature()));
         webTarget = client.target(uri);
     }
-
+//------------------------------------------------------------------------------------------------------
     @Test
     public void test01_all_customers_with_adminrole() throws JsonMappingException, JsonProcessingException {
-        logger.info("\n==> " + Thread.currentThread().getStackTrace()[1].getMethodName());
         Response response = webTarget
             //.register(userAuth)
             .register(adminAuth)
@@ -134,7 +135,7 @@ public class OrderSystemTestSuite {
         assertThat(response.getStatus(), is(200));
         List<CustomerPojo> custs = response.readEntity(new GenericType<List<CustomerPojo>>(){});
         assertThat(custs, is(not(empty())));
-        assertThat(custs, hasSize(4));
+        assertThat(custs, hasSize(3));
     }
     
     // TODO - create39 more test-cases that send GET/PUT/POST/DELETE messages
@@ -142,44 +143,29 @@ public class OrderSystemTestSuite {
     // ClientBuilder APIs
 
     @Test
-    public void test02_find_all_customers_with_userrole() throws JsonMappingException, JsonProcessingException {
-        logger.info("\n\n ==> " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    public void test02_find_all_customers_with_user0() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
-            .register(userAuth)
+            .register(user0_Auth)
             .path(CUSTOMER_RESOURCE_NAME)
             .request()
             .get();
-        //assertThat(response.getStatus(), is(401));
-        assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+        assertThat(response.getStatus(), is(403));
+        //assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
         
     }
-    
     @Test
-    public void test03_find_all_customers_with_norole() throws JsonMappingException, JsonProcessingException {
-        logger.info(String.format("%\n ==> %s" + Thread.currentThread().getStackTrace()[1].getMethodName()));
+    public void test03_find_all_customers_with_user1() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
+            .register(user1_Auth)
             .path(CUSTOMER_RESOURCE_NAME)
             .request()
             .get();
-        //assertThat(response.getStatus(), is(401));
-        assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+        assertThat(response.getStatus(), is(403));
+        //assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
         
     }
-    
-    @Disabled
     @Test
-    public void test03_find_customer1_by_id_norole() throws JsonMappingException, JsonProcessingException {
-        Response response = webTarget
-            .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
-            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
-            .request()
-            .get();
-        assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
-    }
-    
-    @Disabled
-    @Test
-    public void test04_find_customer1_by_id_adminrole() throws JsonMappingException, JsonProcessingException {
+    public void test04_find_customerAdmin_by_id_adminrole() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
             .register(adminAuth)
             .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
@@ -194,38 +180,42 @@ public class OrderSystemTestSuite {
         assertThat(c1.getPhoneNumber(), is(equalToIgnoringCase(CUST1_PHONE)));
     }
     
-    @Disabled
     @Test
-    public void test05_find_customer1_by_id_user1() throws JsonMappingException, JsonProcessingException {
+    public void test05_find_customerAdmin_by_id_user0() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
-            .register(userAuth)
+            .register(user0_Auth)
             .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
             .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
             .request()
             .get();
-        assertThat(response.getStatus(), is(OK.getStatusCode()));
-        CustomerPojo c1 = response.readEntity(new GenericType<CustomerPojo>(){});
-        assertThat(c1.getFirstName(), is(equalToIgnoringCase(CUST1_FIRSTNAME)));
-        assertThat(c1.getLastName(), is(equalToIgnoringCase(CUST1_LASTNAME)));
-        assertThat(c1.getEmail(), is(equalToIgnoringCase(CUST1_EMAIL)));
-        assertThat(c1.getPhoneNumber(), is(equalToIgnoringCase(CUST1_PHONE)));
+        //assertThat(response.getStatus(),is(UNAUTHORIZED.getStatusCode()));
+        assertThat(response.getStatus(), is(403));
     }
     
-    @Disabled
     @Test
-    public void test06_find_customer2_by_id_user1() throws JsonMappingException, JsonProcessingException {
+    public void test06_find_customerAdmin_by_id_user1() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
-            .register(userAuth)
+            .register(user1_Auth)
             .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
-            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
+            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
             .request()
             .get();
-        assertThat(response.getStatus(), is(401));
+       // assertThat(response.getStatus(),is(UNAUTHORIZED.getStatusCode()));
+        assertThat(response.getStatus(), is(403));
     }
     
-    @Disabled
     @Test
-    public void test07_find_customer2_by_id_adminrole() throws JsonMappingException, JsonProcessingException {
+    public void test07_find_customerAdmin_by_id_norole() throws JsonMappingException, JsonProcessingException {
+        Response response = webTarget
+            .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+            .request()
+            .get();
+        assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+    }
+    
+    @Test
+    public void test08_find_customer0_by_id_adminrole() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
             .register(adminAuth)
             .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
@@ -238,32 +228,163 @@ public class OrderSystemTestSuite {
         assertThat(c2.getLastName(), is(equalToIgnoringCase("Pitt")));
         assertThat(c2.getEmail(), is(equalToIgnoringCase("bpitt@gmail.com")));
         assertThat(c2.getPhoneNumber(), is(equalToIgnoringCase("613-222-6666")));
+        
+       
+    }
+    @Test
+    public void test09_find_customer0_by_id_user0() throws JsonMappingException, JsonProcessingException {
+        Response response = webTarget
+            .register(user0_Auth)
+            .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
+            .request()
+            .get();
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+        CustomerPojo c2 = response.readEntity(new GenericType<CustomerPojo>(){});
+        assertThat(c2.getFirstName(), is(equalToIgnoringCase("Brad")));
+        assertThat(c2.getLastName(), is(equalToIgnoringCase("Pitt")));
+        assertThat(c2.getEmail(), is(equalToIgnoringCase("bpitt@gmail.com")));
+        assertThat(c2.getPhoneNumber(), is(equalToIgnoringCase("613-222-6666")));
     }
     
-    @Disabled
     @Test
-    public void test08_create_customer_with_norole() {
+    public void test10_find_customer0_by_id_user1() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
+            .register(user1_Auth)
+            .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
+            .request()
+            .get();
+        assertThat(response.getStatus(), is(403));
+    }
+    
+    @Test
+    public void test11_find_customer1_by_id_adminrole() throws JsonMappingException, JsonProcessingException {
+        Response response = webTarget
+            .register(adminAuth)
+            .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 3)
+            .request()
+            .get();
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+        CustomerPojo c2 = response.readEntity(new GenericType<CustomerPojo>(){});
+        assertThat(c2.getFirstName(), is(equalToIgnoringCase("Matt")));
+        assertThat(c2.getLastName(), is(equalToIgnoringCase("Jon")));
+        assertThat(c2.getEmail(), is(equalToIgnoringCase("mjon@gmail.com")));
+        assertThat(c2.getPhoneNumber(), is(equalToIgnoringCase("613-333-7777")));
+        
+       
+    }
+    @Test
+    public void test12_find_customer1_by_id_user0() throws JsonMappingException, JsonProcessingException {
+        Response response = webTarget
+            .register(user0_Auth)
+            .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 3)
+            .request()
+            .get();
+        assertThat(response.getStatus(), is(403));
+        
+    }
+    
+    @Test
+    public void test13_find_customer1_by_id_user1() throws JsonMappingException, JsonProcessingException {
+        Response response = webTarget
+            .register(user1_Auth)
+            .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 3)
+            .request()
+            .get();
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+        CustomerPojo c2 = response.readEntity(new GenericType<CustomerPojo>(){});
+        assertThat(c2.getFirstName(), is(equalToIgnoringCase("Matt")));
+        assertThat(c2.getLastName(), is(equalToIgnoringCase("Jon")));
+        assertThat(c2.getEmail(), is(equalToIgnoringCase("mjon@gmail.com")));
+        assertThat(c2.getPhoneNumber(), is(equalToIgnoringCase("613-333-7777")));
+    }
+  //-------------Update - Add address to customer
+    @Test
+    public void test14_add_address_to_customerAdmin_by_adminrole() throws JsonMappingException, JsonProcessingException {
+       // Response response = webTarget
+       //     .register(adminAuth)
+       //     .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+       //     .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 3)
+        //    .request()
+        //    .put(Entity.entity(newCustomer, MediaType.APPLICATION_JSON_TYPE));
+       // assertThat(response.getStatus(), is(OK.getStatusCode()));
+        
+    }
+    @Test
+    public void test15_add_address_to_customerAdmin_by_user0() throws JsonMappingException, JsonProcessingException {
+        //Response response = webTarget
+         //   .register(user0_Auth)
+    }
+    @Test
+    public void test16_add_address_to_customerAdmin_by_user1() throws JsonMappingException, JsonProcessingException {
+      //Response response = webTarget
+        //   .register(user1_Auth)
+    }
+    @Test
+    public void test17_add_address_to_customerAdmin_by_norole() throws JsonMappingException, JsonProcessingException {
+      //Response response = webTarget
+          
+    }
+    @Test
+    public void test18_add_address_to_customer0_by_adminrole() throws JsonMappingException, JsonProcessingException {
+       // Response response = webTarget
+       //     .register(adminAuth)
+       
+    }
+    @Test
+    public void test19_add_address_to_customer0_by_user0() throws JsonMappingException, JsonProcessingException {
+        //Response response = webTarget
+         //   .register(user0_Auth)
+    }
+    @Test
+    public void test20_add_address_to_customer0_by_user1() throws JsonMappingException, JsonProcessingException {
+      //Response response = webTarget
+        //   .register(user1_Auth)
+    }
+    @Test
+    public void test21_add_address_to_customer1_by_adminrole() throws JsonMappingException, JsonProcessingException {
+       // Response response = webTarget
+       //     .register(adminAuth)
+          
+    }
+    @Test
+    public void test22_add_address_to_customer1_by_user0() throws JsonMappingException, JsonProcessingException {
+        //Response response = webTarget
+         //   .register(user0_Auth)
+    }
+    @Test
+    public void test23_add_address_to_customer1_by_user1() throws JsonMappingException, JsonProcessingException {
+      //Response response = webTarget
+        //   .register(user1_Auth)
+    }
+    //------------New customer
+  /*
+    @Test
+    public void test24_create_new_customer_by_user0() {
+        Response response = webTarget
+            .register(user0_Auth)
             .path(CUSTOMER_RESOURCE_NAME)
             .request()
             .post(Entity.entity(newCustomer, MediaType.APPLICATION_JSON_TYPE));
-        assertThat(response.getStatus(),is(UNAUTHORIZED.getStatusCode()));
+        //assertThat(response.getStatus(),is(UNAUTHORIZED.getStatusCode()));
+        assertThat(response.getStatus(), is(403));
     }
     
-    @Disabled
     @Test
-    public void test09_create_customer_with_userrole() {
+    public void test25_create_new_customer_by_user1() {
         Response response = webTarget
-            .register(userAuth)
+            .register(user1_Auth)
             .path(CUSTOMER_RESOURCE_NAME)
             .request()
             .post(Entity.entity(newCustomer, MediaType.APPLICATION_JSON_TYPE));
-        assertThat(response.getStatus(),is(401));
+        assertThat(response.getStatus(),is(403));
     }
-    
-    @Disabled
     @Test
-    public void test10_create_customer_with_adminrole() {
+    public void test26_create_new_customer_by_adminrole() {
         Response response = webTarget
             .register(adminAuth)
             .path(CUSTOMER_RESOURCE_NAME)
@@ -276,18 +397,12 @@ public class OrderSystemTestSuite {
         assertThat(newCustomerAndTimestamps.getCreatedDate().toLocalDate(), is(today));
         newCustomer = newCustomerAndTimestamps;
     }
+   //----------------
     
-    @Disabled
     @Test
-    public void test11_update_customer1_with_norole() {
-        
-    }
-    
-    @Disabled
-    @Test
-    public void test12_update_customer_with_user1() {
+    public void test27_update_new_customer_by_adminrole() {
         Response response = webTarget
-            .register(userAuth)
+            .register(adminAuth)
             .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
             .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, newCustomer.getId())
             .request()
@@ -295,10 +410,21 @@ public class OrderSystemTestSuite {
         assertThat(response.getStatus(),is(OK.getStatusCode()));
         //// add something
     }
-    
-    @Disabled
     @Test
-    public void test12_update_customer_with_same_customer_user() {
+    public void test28_update_new_customer_by_user0() {
+        Response response = webTarget
+            .register(user0_Auth)
+            .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, newCustomer.getId())
+            .request()
+            .put(Entity.entity(newCustomer, MediaType.APPLICATION_JSON_TYPE));
+        //assertThat(response.getStatus(),is(OK.getStatusCode()));
+        //// check!
+        assertThat(response.getStatus(),is(401));
+    }
+    
+    @Test
+    public void test29_update_new_customer_by_that_user() {
         Response response = webTarget
             // a new SecurityUser will be created after a new customer is created,  USER_ROLE is 'user'
             .register(HttpAuthenticationFeature.basic(DEFAULT_USER_PREFIX + "" + newCustomer.getId(), DEFAULT_USER_PASSWORD))
@@ -306,39 +432,52 @@ public class OrderSystemTestSuite {
             .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, newCustomer.getId())
             .request()
             .put(Entity.entity(newCustomer, MediaType.APPLICATION_JSON_TYPE));
-        assertThat(response.getStatus(),is(OK.getStatusCode()));
-     
+        assertThat(response.getStatus(),is(401));
     }
     
-    @Disabled
     @Test
-    public void test13_update_customer1_with_adminrole() {
-        
-    }
-    
-    @Disabled
-    @Test
-    public void test14_remove_customer1_by_id_norole() throws JsonMappingException, JsonProcessingException {
+    public void test30_remove_new_customer_by_user0() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
+            .register(user0_Auth)
             .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
-            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT,newCustomer.getId())
             .request()
             .delete();
        // HttpErrorResponse errorResponse = response.readEntity(new GenericType<HttpErrorResponse>(){});
        // assertThat(errorResponse.getReasonPhrase(), is(ACCESS_REQUIRES_AUTHENTICATION));
         assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
     }
-    
-    @Disabled
     @Test
-    public void test15_remove_customer1_by_id_userrole() throws JsonMappingException, JsonProcessingException {
+    public void test31_remove_new_customer_by_user1() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
-            .register(userAuth)
+            .register(user1_Auth)
             .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
-            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, newCustomer.getId())
             .request()
             .delete();
-        assertThat(response.getStatus(), is(401));
+        assertThat(response.getStatus(), is(403));
     }
-    
+    @Test
+    public void test32_remove_new_customer_by_that_user() throws JsonMappingException, JsonProcessingException {
+        Response response = webTarget
+            .register(HttpAuthenticationFeature.basic(DEFAULT_USER_PREFIX + "" + newCustomer.getId(), DEFAULT_USER_PASSWORD))
+            .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT,newCustomer.getId())
+            .request()
+            .delete();
+        assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+    }
+    @Test
+    public void test33_remove_new_customer_by_admin() throws JsonMappingException, JsonProcessingException {
+        Response response = webTarget
+            .register(adminAuth)
+            .register(HttpAuthenticationFeature.basic(DEFAULT_USER_PREFIX + "" + newCustomer.getId(), DEFAULT_USER_PASSWORD))
+            .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+            .resolveTemplate(RESOURCE_PATH_ID_ELEMENT,newCustomer.getId())
+            .request()
+            .delete();
+        assertThat(response.getStatus(),is(OK.getStatusCode()));
+        
+    }
+    */
 }
