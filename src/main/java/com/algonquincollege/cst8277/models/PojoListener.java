@@ -41,6 +41,5 @@ public class PojoListener {
     @PreUpdate
     public void setUpdatedDate(PojoBase cust) {
         cust.setUpdated(LocalDateTime.now());
-        cust.setVersion(cust.getVersion()+1);
     }
 }

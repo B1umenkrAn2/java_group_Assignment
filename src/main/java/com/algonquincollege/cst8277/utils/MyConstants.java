@@ -38,20 +38,24 @@ public interface MyConstants {
     public static final String CREDENTIAL_RESOURCE_NAME = "credential";
     public static final String CUSTOMER_RESOURCE_NAME = "customer";
     public static final String ORDER_RESOURCE_NAME = "order";
+    public static final String ORDER_RESOURCE_SUBRESOURCE_NAME = "orderline";
     public static final String PRODUCT_RESOURCE_NAME = "product";
     public static final String RESOURCE_PATH_DESCRIPTION_ELEMENT = "description";
     public static final String RESOURCE_PATH_DESCRIPTION_PATH = "/{" + RESOURCE_PATH_DESCRIPTION_ELEMENT + "}";
     public static final String STORE_RESOURCE_NAME = "store";
     public static final String CUSTOMER_ADDRESS_SUBRESOURCE_NAME = "address";
+    public static final String ONE_CUST_ALL_ADDRESS = RESOURCE_PATH_ID_ELEMENT + SLASH + CUSTOMER_ADDRESS_SUBRESOURCE_NAME;
+    public static final String ONE_CUST_ONE_ADDRESS = RESOURCE_PATH_ID_ELEMENT + SLASH + RESOURCE_PATH_ID_PATH;
+    public static final String ADDRESS_RESOURCE_PATH_ID_PATH = SLASH + CUSTOMER_ADDRESS_SUBRESOURCE_NAME + RESOURCE_PATH_ID_PATH;
+    public static final String ONE_CUST_ALL_ORDER = RESOURCE_PATH_ID_PATH + SLASH + ORDER_RESOURCE_NAME;
+    public static final String ONE_CUST_ONE_ORDER = RESOURCE_PATH_ID_PATH+SLASH + ORDER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH;
+    public static final String ONE_ORDER_ALL_ORDERLINE = SLASH +ORDER_RESOURCE_SUBRESOURCE_NAME+SLASH+ ORDER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH;
+    public static final String ONE_ORDER_ONE_ORDERLINE = SLASH + ORDER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH + SLASH + ORDER_RESOURCE_SUBRESOURCE_NAME;
 
     public static final String CUSTOMER_ADDRESS_RESOURCE_PATH =
             RESOURCE_PATH_ID_PATH + SLASH + CUSTOMER_ADDRESS_SUBRESOURCE_NAME;
 
     public static final String CUSTOMER_RESOURCE_ORDER = CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH + ORDER_RESOURCE_NAME;
-
-    public static final String CUSTOMER_ORDER_RESOURCE_PATH =
-            RESOURCE_PATH_ID_PATH + SLASH + ORDER_RESOURCE_NAME;
-
 
     //Security constants
     public static final String USER_ROLE = "USER_ROLE";
@@ -67,6 +71,7 @@ public interface MyConstants {
     public static final String DEFAULT_ADMIN_USER_PASSWORD = "admin";
     public static final String DEFAULT_USER_PREFIX = "user";
     public static final String DEFAULT_USER_PASSWORD = "password";
+
 
     // the nickname of this Hash algorithm is 'PBandJ' (Peanut-Butter-And-Jam, like the sandwich!)
     // I would like to use the constants from org.glassfish.soteria.identitystores.hash.Pbkdf2PasswordHashImpl

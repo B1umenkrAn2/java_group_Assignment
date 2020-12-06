@@ -47,7 +47,7 @@ public class CustomerResource {
     protected SecurityContext sc;
 
     @GET
-    @Path("")
+    @Path(SLASH)
     @PermitAll
     public Response getCustomers() {
         servletContext.log("retrieving all customers ...");
@@ -84,7 +84,7 @@ public class CustomerResource {
 
 
     @POST
-    @Path("")
+    @Path(SLASH)
     @Transactional
     @RolesAllowed({ADMIN_ROLE})
     public Response addCustomer(CustomerPojo newCustomer) {
@@ -97,7 +97,7 @@ public class CustomerResource {
     }
 
     @DELETE
-    @Path("{id:}")
+    @Path(RESOURCE_PATH_ID_PATH)
     @RolesAllowed({ADMIN_ROLE})
     @Transactional
     public Response deleteCustomerById(@PathParam("id") int id) {
@@ -107,7 +107,7 @@ public class CustomerResource {
     }
 
     @PUT
-    @Path("{id:}")
+    @Path(RESOURCE_PATH_ID_PATH)
     @RolesAllowed({ADMIN_ROLE})
     @Transactional
     public Response updateCustomerByid(@PathParam("id") int id, CustomerPojo customerPojo) {
@@ -118,7 +118,7 @@ public class CustomerResource {
     }
 
     @GET
-    @Path("{id:}/address")
+    @Path(ONE_CUST_ALL_ADDRESS)
     @PermitAll
     public Response getCustomerAllAddress(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to retrieve a specific customer all address" );
@@ -127,7 +127,7 @@ public class CustomerResource {
     }
 
     @GET
-    @Path("{id:}/address/{id2:}")
+    @Path(ONE_CUST_ONE_ADDRESS)
     @PermitAll
     public Response getCustomerAllAddress(@PathParam("id") int id, @PathParam("id2") int id2) {
         servletContext.log("try to retrieve a specific customer's a specific address" );
@@ -136,7 +136,7 @@ public class CustomerResource {
     }
 
     @POST
-    @Path(RESOURCE_PATH_ID_PATH + SLASH + CUSTOMER_ADDRESS_SUBRESOURCE_NAME)
+    @Path(ONE_CUST_ONE_ADDRESS)
     @Transactional
     @RolesAllowed({ADMIN_ROLE})
     public Response addAddressForCustomer(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, AddressPojo newAddress) {
@@ -147,7 +147,7 @@ public class CustomerResource {
 
 
     @DELETE
-    @Path("/address/{id:}")
+    @Path(ADDRESS_RESOURCE_PATH_ID_PATH)
     @Transactional
     @RolesAllowed({ADMIN_ROLE})
     public Response deleteCustomerAddressByid(@PathParam("id") int id) {
@@ -157,7 +157,7 @@ public class CustomerResource {
     }
 
     @PUT
-    @Path("/address/{id:}")
+    @Path(ADDRESS_RESOURCE_PATH_ID_PATH)
     @Transactional
     @RolesAllowed({ADMIN_ROLE})
     public Response updateAddressByid(@PathParam("id") int id, AddressPojo ap) {
@@ -168,7 +168,7 @@ public class CustomerResource {
     }
 
     @GET
-    @Path("{id:}/orders")
+    @Path(ONE_CUST_ALL_ORDER)
     @PermitAll
     public Response getCustomerAllOrder(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to retrieve specific customer all orders " );
@@ -177,7 +177,7 @@ public class CustomerResource {
     }
 
     @GET
-    @Path("/order/{id:}")
+    @Path(ONE_CUST_ONE_ORDER)
     @PermitAll
     public Response getCustomerOneOrder(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to retrieve a specific customer's a specific order" +id );
@@ -186,7 +186,7 @@ public class CustomerResource {
     }
 
     @POST
-    @Path("{id:}/order")
+    @Path(ONE_CUST_ONE_ORDER)
     @RolesAllowed({ADMIN_ROLE})
     public Response addOrderToCustomerById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, OrderPojo orderPojo) {
         servletContext.log("try to add new OrderLine to a specific order" + id);
@@ -195,7 +195,7 @@ public class CustomerResource {
     }
 
     @PUT
-    @Path("/order/{id:}")
+    @Path(ONE_CUST_ONE_ORDER)
     @RolesAllowed({ADMIN_ROLE})
     public Response updateOrderById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, OrderPojo orderPojo) {
         servletContext.log("try to update specific OrderLine" + id);
@@ -205,7 +205,7 @@ public class CustomerResource {
     }
 
     @DELETE
-    @Path("/order/{id:}")
+    @Path(ONE_CUST_ONE_ORDER)
     @RolesAllowed({ADMIN_ROLE})
     public Response deleteOrderById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to delete specific Order" + id);
@@ -216,7 +216,7 @@ public class CustomerResource {
     // orderline
 
     @GET
-    @Path("/order/{id:}/orderline")
+    @Path(ONE_ORDER_ALL_ORDERLINE)
     @PermitAll
     public Response getOneOrderAllOrderLine(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to retrieve all store " );
@@ -225,7 +225,7 @@ public class CustomerResource {
     }
 
     @GET
-    @Path("/order/orderline/{id:}")
+    @Path(ONE_ORDER_ONE_ORDERLINE)
     @PermitAll
     public Response getOneOrderLine(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to retrieve specific orderLine " + id);
@@ -234,7 +234,7 @@ public class CustomerResource {
     }
 
     @POST
-    @Path("order/{id:}/orderline")
+    @Path(ONE_ORDER_ONE_ORDERLINE)
     @RolesAllowed({ADMIN_ROLE})
     public Response addOrderLineToOrderById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, OrderLinePojo olp) {
         servletContext.log("try to add new OrderLine to a  specific orderLine" + id);
@@ -243,7 +243,7 @@ public class CustomerResource {
     }
 
     @PUT
-    @Path("/order/orderline/{id:}")
+    @Path(ONE_ORDER_ONE_ORDERLINE)
     @RolesAllowed({ADMIN_ROLE})
     public Response updateOrderById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, OrderLinePojo olp) {
         servletContext.log("try to update specific OrderLine" + id);
@@ -255,7 +255,7 @@ public class CustomerResource {
     }
 
     @DELETE
-    @Path("/order/orderline/{id:}")
+    @Path(ONE_ORDER_ONE_ORDERLINE)
     @RolesAllowed({ADMIN_ROLE})
     public Response deleteOrderLineById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to delete specific OrderLine" + id);
