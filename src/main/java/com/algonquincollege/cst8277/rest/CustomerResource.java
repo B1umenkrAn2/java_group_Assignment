@@ -217,7 +217,7 @@ public class CustomerResource {
     @Path(CUSTOMER_RESOURCE_ORDER)
     public Response addOrdersForCustomer(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, List<OrderPojo> newOrders) {
         Response response = null;
-        CustomerPojo updatedCustomer = customerServiceBean.   setOrdersForCustomer(id, newOrders);
+        CustomerPojo updatedCustomer = customerServiceBean.setOrdersForCustomer(id, newOrders);
         response = Response.ok(updatedCustomer).build();
         return response;
     }
@@ -271,6 +271,44 @@ public class CustomerResource {
         }
         return response;
     }
+    
+    
+  //getOrderById
+    @GET
+    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
+    @Path(CUSTOMER_RESOURCE_ORDER)//---("/{id:}/order")
+    public Response getCustomerAllOrdersByCustId(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
+        servletContext.log("try to retrieve specific order " + id);
+        Response response = null;
+        //List<OrderPojo> orders = null;
+        OrderPojo orders = null;
+        CustomerPojo cust = null;
+        
+        if (sc.isCallerInRole(ADMIN_ROLE)) {
+            orders = customerServiceBean.getOrderById(id);
+            response = Response.status( orders == null ? NOT_FOUND : OK).entity(orders).build();
+        }
+        
+        else if (sc.isCallerInRole(USER_ROLE)) {
+            WrappingCallerPrincipal wCallerPrincipal = (WrappingCallerPrincipal)sc.getCallerPrincipal();
+            SecurityUser sUser = (SecurityUser)wCallerPrincipal.getWrapped();
+            cust = sUser.getCustomer();
+            //verfy customer name
+            orders = customerServiceBean.getOrderById(id);
+            if (orders != null && cust.getId() == id) {
+                orders = customerServiceBean.getOrderById(id);
+                response = Response.status(OK).entity(orders).build();
+            }
+            else {
+                throw new ForbiddenException();
+            }
+        } else {
+            response = Response.status(BAD_REQUEST).build();
+        }
+        return response;
+    }
+
+    
     /* **************************
   //add order
     @POST

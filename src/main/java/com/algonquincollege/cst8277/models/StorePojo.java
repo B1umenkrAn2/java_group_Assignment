@@ -22,7 +22,7 @@ import javax.persistence.*;
 *
 * Description: model for the Store object
 */
-@Entity
+@Entity(name = "Store")
 @Table(name = "STORES")
 @AttributeOverride(name = "id", column = @Column(name = "STORE_ID"))
 public class StorePojo extends PojoBase {

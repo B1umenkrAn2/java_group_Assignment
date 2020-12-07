@@ -75,27 +75,17 @@ public class ProductResource {
         Response response = Response.status(theProduct == null ? NOT_FOUND : OK).entity(theProduct).build();
         return response;
     }
+        
+    @GET
+    @PermitAll
+    @Path("/parameters")
+    public Response getProductByDescription(@QueryParam("description") String description) {
+        servletContext.log("try to retrieve specific product by description " + description);
+        List<ProductPojo> products = customerServiceBean.getProductByDescription(description);
+        Response response = Response.status(products.isEmpty() ? NOT_FOUND : OK).entity(products).build();
+        return response;
+    }
     
-//    @GET
-//    @PermitAll
-//    @Path(RESOURCE_PATH_DESCRIPTION_PATH)
-//    public Response getProductByDescription(@PathParam(RESOURCE_PATH_DESCRIPTION_ELEMENT) String description) {
-//        servletContext.log("try to retrieve specific product by description " + description);
-//        List<ProductPojo> products = customerServiceBean.getProductByDescription(description);
-//        Response response = Response.status(products.isEmpty() ? NOT_FOUND : OK).entity(products).build();
-//        return response;
-//    }
-    
-//    @GET
-//    @PermitAll
-////    @Path("?description=value")
-//    public Response getProductByDescription2(@QueryParam("description") String description) {
-//        servletContext.log("try to retrieve specific product by description " + description);
-//        List<ProductPojo> products = customerServiceBean.getProductByDescription(description);
-//        Response response = Response.status(products.isEmpty() ? NOT_FOUND : OK).entity(products).build();
-//        return response;
-//    }
-//    
     
     @POST
     @RolesAllowed({ADMIN_ROLE})
@@ -111,7 +101,7 @@ public class ProductResource {
     @RolesAllowed({ADMIN_ROLE})
     @Transactional
     public Response updateProduct(ProductPojo productToUpdate) {
-        servletContext.log("try to updata a product " + productToUpdate.getId());
+        servletContext.log("try to update a product " + productToUpdate.getId());
         ProductPojo updatedProduct = customerServiceBean.updateProduct(productToUpdate);
         Response response = Response.status(updatedProduct == null ? NOT_FOUND : OK).entity(updatedProduct).build();
         return response;

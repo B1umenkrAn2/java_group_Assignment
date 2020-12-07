@@ -19,7 +19,7 @@ import java.io.Serializable;
 *
 * Description: model for the OrderLine object
 */
-@Entity
+@Entity(name = "OrderLine")
 @Table(name = "ORDERLINE")
 public class OrderLinePojo implements Serializable {
     private static final long serialVersionUID = 1L;

@@ -36,6 +36,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -69,6 +70,16 @@ public class StoreResource {
         servletContext.log("try to retrieve specific store " + id);
         StorePojo theStore = customerServiceBean.getStoreById(id);
         Response response = Response.status(theStore == null ? NOT_FOUND : OK).entity(theStore).build();
+        return response;
+    }
+    
+    @GET
+    @PermitAll
+    @Path("/parameters")
+    public Response getStoreByName(@QueryParam("storename") String name) {
+        servletContext.log("try to retrieve specific store by name " + name);
+        List<StorePojo> stores = customerServiceBean.getStoreByName(name);
+        Response response = Response.status(stores.isEmpty() ? NOT_FOUND : OK).entity(stores).build();
         return response;
     }
     

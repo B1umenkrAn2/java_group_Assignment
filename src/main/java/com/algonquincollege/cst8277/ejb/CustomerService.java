@@ -28,6 +28,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.security.enterprise.identitystore.Pbkdf2PasswordHash;
+import javax.servlet.ServletContext;
 import javax.transaction.Transactional;
 
 import com.algonquincollege.cst8277.models.*;
@@ -48,9 +49,18 @@ public class CustomerService implements Serializable {
     
     private static final String FIND_CUSTOMER_BILLING_ADDRESS =
             "select sa from Customer cust join BillingAddress ba on cust.billingAddress = ba.id where cust.id = :param1";
+    
+    private static final String FIND_PRODUCT_BY_DESCRIPTION =
+            "select p from Product p where p.description like :param1";
+    
+    private static final String FIND_STORE_BY_PARTIAL_NAME =
+            "select s from Store s where s.storeName like :param1";
 
     @PersistenceContext(name = PU_NAME)
     protected EntityManager em;
+    
+    @Inject
+    protected ServletContext servletContext;
 
     @Inject
     protected Pbkdf2PasswordHash pbAndjPasswordHash;
@@ -151,8 +161,6 @@ public class CustomerService implements Serializable {
         query.setParameter("param1", custId);
         return query.getSingleResult();
     }
-    
-    
     
     
     public List<AddressPojo> getCustomerAlladdressByCustId(int id) {
@@ -302,6 +310,12 @@ public class CustomerService implements Serializable {
         }
     }
 
+    /**
+     * Add a new product
+     * 
+     * @param newProduct
+     * @return
+     */
     @Transactional
     public ProductPojo addNewProduct(ProductPojo newProduct) {
         if (em.find(ProductPojo.class, newProduct.getId()) != null) {
@@ -329,20 +343,14 @@ public class CustomerService implements Serializable {
      * @return products matched to the description
      */
     public List<ProductPojo> getProductByDescription(String prodDescription) {
+        servletContext.log("product description parameter = [" + prodDescription + "]");
         
-        CriteriaBuilder criteriaBuilder  = em.getCriteriaBuilder();
-        CriteriaQuery<ProductPojo> criteria  = criteriaBuilder.createQuery(ProductPojo.class);
-           
-        Root<ProductPojo> root = criteria.from(ProductPojo.class);
-        Predicate predicate = criteriaBuilder.like(root.get(ProductPojo_.description), criteriaBuilder.parameter(String.class, "param1"));
-        criteria.where(predicate);
-        
-        TypedQuery<ProductPojo> query = em.createQuery(criteria).setParameter("param1", "%" + prodDescription + "%");  
+        TypedQuery<ProductPojo> query = em.createQuery(FIND_PRODUCT_BY_DESCRIPTION, ProductPojo.class)
+                .setParameter("param1", "%" + prodDescription + "%");
         List<ProductPojo> foundProducts = query.getResultList();
         
         return foundProducts;
     }
-
     
     /**
      * Update an existed product
@@ -372,7 +380,28 @@ public class CustomerService implements Serializable {
         return productToRemove;
     }
 
+    /**
+     * Add a new order
+     * 
+     * @param newOrder
+     * @return
+     */
+    @Transactional
+    public OrderPojo addNewOrder(OrderPojo newOrder) {
+        if (em.find(OrderPojo.class, newOrder.getId()) != null) {
+            return null;
+        }
+        em.persist(newOrder);
+        
+        return newOrder;
+    }
     
+    /**
+     * Retrieve order by its id
+     * 
+     * @param orderId
+     * @return
+     */
     public OrderPojo getOrderbyId(int orderId) {
         return em.find(OrderPojo.class, orderId);
     }
@@ -418,6 +447,22 @@ public class CustomerService implements Serializable {
         return em.find(StorePojo.class, id);
     }
 
+    /**
+     * Retrive store(s) by its name or partial name
+     * 
+     * @param storeName store name
+     * @return store with specified name
+     */
+    public List<StorePojo> getStoreByName(String storeName) {
+        servletContext.log("Store name = [" + storeName + "]");
+        
+        TypedQuery<StorePojo> query = em.createQuery(this.FIND_STORE_BY_PARTIAL_NAME, StorePojo.class)
+                .setParameter("param1", "%" + storeName + "%");
+        List<StorePojo> foundStores = query.getResultList();
+        
+        return foundStores;
+    }
+    
     /**
      * Update a store
      * 
@@ -528,6 +573,4 @@ public class CustomerService implements Serializable {
         return orderLinePojo;
 
     }
-
-
 }
