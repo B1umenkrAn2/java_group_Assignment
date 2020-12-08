@@ -305,8 +305,12 @@ public class CustomerService implements Serializable {
     @Transactional
     public OrderPojo addOrderLineToOrder(int id, OrderLinePojo orderLinePojo) {
         OrderPojo orderPojo = em.find(OrderPojo.class, id);
+        OrderLinePk orderLinePk = new OrderLinePk();
+        orderLinePk.setOwningOrderId(id);
+        orderLinePojo.setPk(orderLinePk);
         orderPojo.getOrderlines().add(orderLinePojo);
-        em.merge(orderPojo);
+        em.persist(orderLinePojo);
+//        em.merge(orderPojo);
         return orderPojo;
     }
 
@@ -325,8 +329,10 @@ public class CustomerService implements Serializable {
     }
 
     @Transactional
-    public OrderLinePojo updateOrderLine(OrderLinePojo orderLinePojo) {
-        OrderLinePojo updatePojo = em.find(OrderLinePojo.class, orderLinePojo.getPk().getOrderLineNo());
+    public OrderLinePojo updateOrderLine(int olid,OrderLinePojo orderLinePojo) {
+        TypedQuery<? extends OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo  ol where ol.pk.orderLineNo = :id", OrderLinePojo.class);
+        query.setParameter("id", olid);
+        OrderLinePojo updatePojo = query.getSingleResult();
         if (orderLinePojo.getAmount() != null) {
             updatePojo.setAmount(orderLinePojo.getAmount());
         }
@@ -338,10 +344,12 @@ public class CustomerService implements Serializable {
 
 
     @Transactional
-    public OrderLinePojo removeOrderLineByNo(int No) {
-        OrderLinePojo orderLinePojo = em.find(OrderLinePojo.class, No);
-        em.remove(orderLinePojo);
-        return orderLinePojo;
+    public OrderLinePojo removeOrderLineByNo(int no) {
+        TypedQuery<? extends OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo  ol where ol.pk.orderLineNo = :id", OrderLinePojo.class);
+        query.setParameter("id", no);
+        OrderLinePojo singleResult = query.getSingleResult();
+        em.remove(singleResult);
+        return singleResult;
 
     }
 

@@ -47,7 +47,7 @@ public class ProductResource {
     protected SecurityContext sc;
 
     @GET
-    @PermitAll
+    @RolesAllowed({ADMIN_ROLE,USER_ROLE})
     @Path(PRODUCT_RESOURCE_NAME)
     public Response getProducts() {
         servletContext.log("retrieving all products ...");
@@ -56,7 +56,7 @@ public class ProductResource {
     }
 
     @GET
-    @PermitAll
+    @RolesAllowed({ADMIN_ROLE,USER_ROLE})
     @Path(RESOURCE_PATH_ID_PATH)
     public Response getProductById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to retrieve specific product " + id);
@@ -66,7 +66,7 @@ public class ProductResource {
 
     @PUT
     @Path("{id}")
-    @RolesAllowed({ADMIN_ROLE})
+    @RolesAllowed({ADMIN_ROLE,USER_ROLE})
     @Transactional
     public Response updateProductById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id,ProductPojo productPojo) {
         servletContext.log("try to update specific product " + id);
@@ -77,8 +77,8 @@ public class ProductResource {
     }
 
     @DELETE
-    @Path("{id}")
-    @RolesAllowed({ADMIN_ROLE})
+    @Path(RESOURCE_PATH_ID_PATH)
+    @RolesAllowed({ADMIN_ROLE,USER_ROLE})
     @Transactional
     public Response deleteProductById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to delete specific product " + id);

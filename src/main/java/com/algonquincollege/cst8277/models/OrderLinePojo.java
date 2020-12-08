@@ -36,7 +36,6 @@ public class OrderLinePojo implements Serializable {
     // JPA requires each @Entity class have a default constructor
     public OrderLinePojo() {
     }
-
     @EmbeddedId
     public OrderLinePk getPk() {
         return primaryKey;

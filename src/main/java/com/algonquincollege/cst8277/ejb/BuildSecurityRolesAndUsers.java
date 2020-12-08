@@ -13,19 +13,6 @@
  */
 package com.algonquincollege.cst8277.ejb;
 
-import static com.algonquincollege.cst8277.utils.MyConstants.ADMIN_ROLE;
-import static com.algonquincollege.cst8277.utils.MyConstants.USER_ROLE;
-import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_ADMIN_USER;
-import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_ADMIN_USER_PASSWORD;
-import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_KEY_SIZE;
-import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_PROPERTY_ALGORITHM;
-import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_PROPERTY_ITERATIONS;
-import static com.algonquincollege.cst8277.utils.MyConstants.DEFAULT_SALT_SIZE;
-import static com.algonquincollege.cst8277.utils.MyConstants.PROPERTY_ALGORITHM;
-import static com.algonquincollege.cst8277.utils.MyConstants.PROPERTY_ITERATIONS;
-import static com.algonquincollege.cst8277.utils.MyConstants.PROPERTY_KEYSIZE;
-import static com.algonquincollege.cst8277.utils.MyConstants.PROPERTY_SALTSIZE;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,6 +28,8 @@ import javax.security.enterprise.identitystore.Pbkdf2PasswordHash;
 import com.algonquincollege.cst8277.models.SecurityRole;
 import com.algonquincollege.cst8277.models.SecurityUser;
 import com.algonquincollege.cst8277.security.CustomIdentityStoreJPAHelper;
+
+import static com.algonquincollege.cst8277.utils.MyConstants.*;
 
 /**
  * This Stateless Session bean is 'special' because it is also a Singleton and
@@ -66,6 +55,7 @@ public class BuildSecurityRolesAndUsers {
     public void init() {
         // build default admin user (if needed)
         SecurityUser defaultAdminUser = jpaHelper.findUserByName(DEFAULT_ADMIN_USER);
+        SecurityUser defaultUser = jpaHelper.findUserByName(DEFAULT_USER_PREFIX);
         if (defaultAdminUser == null) {
             defaultAdminUser = new SecurityUser();
             defaultAdminUser.setUsername(DEFAULT_ADMIN_USER);
@@ -88,6 +78,33 @@ public class BuildSecurityRolesAndUsers {
             defaultAdminUser.setRoles(roles);
             jpaHelper.saveSecurityUser(defaultAdminUser);
             
+            // if building Admin User/Role,might as well also build USER_ROLE
+            SecurityRole theUserRole = new SecurityRole();
+            theUserRole.setRoleName(USER_ROLE);
+            jpaHelper.saveSecurityRole(theUserRole);
+        }
+        if (defaultUser == null){
+            defaultUser = new SecurityUser();
+            defaultUser.setUsername(DEFAULT_USER_PREFIX);
+            Map<String, String> pbAndjProperties = new HashMap<>();
+            pbAndjProperties.put(PROPERTY_ALGORITHM, DEFAULT_PROPERTY_ALGORITHM);
+            pbAndjProperties.put(PROPERTY_ITERATIONS, DEFAULT_PROPERTY_ITERATIONS);
+            pbAndjProperties.put(PROPERTY_SALTSIZE, DEFAULT_SALT_SIZE);
+            pbAndjProperties.put(PROPERTY_KEYSIZE, DEFAULT_KEY_SIZE);
+            pbAndjPasswordHash.initialize(pbAndjProperties);
+            String pwHash = pbAndjPasswordHash.generate(DEFAULT_USER_PASSWORD.toCharArray());
+            defaultUser.setPwHash(pwHash);
+
+            SecurityRole theAdminRole = new SecurityRole();
+            theAdminRole.setRoleName(ADMIN_ROLE);
+            Set<SecurityRole> roles = defaultUser.getRoles();
+            if (roles == null) {
+                roles = new HashSet<>();
+            }
+            roles.add(theAdminRole);
+            defaultUser.setRoles(roles);
+            jpaHelper.saveSecurityUser(defaultUser);
+
             // if building Admin User/Role,might as well also build USER_ROLE
             SecurityRole theUserRole = new SecurityRole();
             theUserRole.setRoleName(USER_ROLE);

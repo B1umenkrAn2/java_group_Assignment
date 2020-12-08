@@ -29,6 +29,7 @@ public class OrderLinePk implements Serializable {
     protected int owningOrderId;
     protected int orderLineNo;
 
+    @Column(name = "OWNING_ORDER_ID")
     public int getOwningOrderId() {
         return owningOrderId;
     }
