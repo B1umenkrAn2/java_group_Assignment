@@ -48,7 +48,7 @@ public class ProductResource {
 
     @GET
     @RolesAllowed({ADMIN_ROLE,USER_ROLE})
-    @Path(PRODUCT_RESOURCE_NAME)
+    @Path(SLASH)
     public Response getProducts() {
         servletContext.log("retrieving all products ...");
         List<ProductPojo> custs = customerServiceBean.getAllProducts();
@@ -63,9 +63,19 @@ public class ProductResource {
         ProductPojo theProduct = customerServiceBean.getProductById(id);
         return Response.ok(theProduct).build();
     }
+    @POST
+    @RolesAllowed({ADMIN_ROLE,USER_ROLE})
+    @Path(SLASH)
+    @Transactional
+    public Response addNewProduct(ProductPojo productPojo){
+        servletContext.log("try to add new product ");
+        ProductPojo pojo = customerServiceBean.addPrdocut(productPojo);
+        return Response.ok(pojo).build();
+    }
+
 
     @PUT
-    @Path("{id}")
+    @Path(RESOURCE_PATH_ID_PATH)
     @RolesAllowed({ADMIN_ROLE,USER_ROLE})
     @Transactional
     public Response updateProductById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id,ProductPojo productPojo) {

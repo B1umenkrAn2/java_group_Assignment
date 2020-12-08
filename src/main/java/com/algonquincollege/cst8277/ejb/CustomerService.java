@@ -210,6 +210,11 @@ public class CustomerService implements Serializable {
         return em.merge(updatePojo);
     }
 
+    @Transactional
+    public ProductPojo addPrdocut(ProductPojo newPojo) {
+        em.persist(newPojo);
+        return newPojo;
+    }
 
     @Transactional
     public ProductPojo removeProductById(int id) {
@@ -218,7 +223,7 @@ public class CustomerService implements Serializable {
         return pojo;
     }
 
-
+    // store
     public List<StorePojo> getAllStores() {
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -248,11 +253,19 @@ public class CustomerService implements Serializable {
     }
 
     @Transactional
+    public StorePojo addStore(StorePojo newPojo) {
+        em.persist(newPojo);
+        return newPojo;
+    }
+
+    @Transactional
     public StorePojo removeStoreById(int id) {
         StorePojo pojo = em.find(StorePojo.class, id);
         em.remove(pojo);
         return pojo;
     }
+
+    // order
 
     public List<OrderPojo> getAllOrders() {
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -326,7 +339,7 @@ public class CustomerService implements Serializable {
     }
 
     @Transactional
-    public OrderLinePojo updateOrderLine(int olid,OrderLinePojo orderLinePojo) {
+    public OrderLinePojo updateOrderLine(int olid, OrderLinePojo orderLinePojo) {
         TypedQuery<? extends OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo  ol where ol.pk.orderLineNo = :id", OrderLinePojo.class);
         query.setParameter("id", olid);
         OrderLinePojo updatePojo = query.getSingleResult();

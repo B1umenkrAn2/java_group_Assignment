@@ -23,10 +23,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.algonquincollege.cst8277.ejb.CustomerService;
+import com.algonquincollege.cst8277.models.ProductPojo;
 import com.algonquincollege.cst8277.models.StorePojo;
 
 import static com.algonquincollege.cst8277.utils.MyConstants.*;
-
+@Path(STORE_RESOURCE_NAME)
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class StoreResource {
     @EJB
     protected CustomerService customerServiceBean;
@@ -38,7 +41,7 @@ public class StoreResource {
     protected SecurityContext sc;
 
     @GET
-    @Path(RESOURCE_PATH_ID_PATH)
+    @Path(SLASH)
     @RolesAllowed({ADMIN_ROLE,USER_ROLE})
     public Response getStores() {
         servletContext.log("retrieving all stores ...");
@@ -65,6 +68,16 @@ public class StoreResource {
         storePojo.setId(id);
         StorePojo theStore = customerServiceBean.updateStore(storePojo);
         return Response.ok(theStore).build();
+    }
+
+    @POST
+    @RolesAllowed({ADMIN_ROLE,USER_ROLE})
+    @Path(SLASH)
+    @Transactional
+    public Response addNewStore(StorePojo storePojo){
+        servletContext.log("try to add new product ");
+        StorePojo pojo = customerServiceBean.addStore(storePojo);
+        return Response.ok(pojo).build();
     }
 
     @DELETE
