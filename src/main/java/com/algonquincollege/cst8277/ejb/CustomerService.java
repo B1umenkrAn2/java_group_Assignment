@@ -299,7 +299,6 @@ public class CustomerService implements Serializable {
         OrderPojo pojo = em.find(OrderPojo.class, id);
         em.remove(pojo);
         return pojo;
-
     }
 
     @Transactional
@@ -318,14 +317,12 @@ public class CustomerService implements Serializable {
         TypedQuery<OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo ol where ol.pk.owningOrderId=:id", OrderLinePojo.class);
         query.setParameter("id", oId);
         return query.getResultList();
-
     }
 
     public OrderLinePojo getOrderLineByOrderLineNo(int no) {
         TypedQuery<OrderLinePojo> query = em.createQuery("select ol from OrderLinePojo ol where ol.pk.orderLineNo=:no", OrderLinePojo.class);
         query.setParameter("no", no);
         return query.getSingleResult();
-
     }
 
     @Transactional
