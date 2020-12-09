@@ -57,6 +57,8 @@ public class OrderSystemTestSuite {
     static URI uri;
     static HttpAuthenticationFeature adminAuth;
     static HttpAuthenticationFeature userAuth;
+    static HttpAuthenticationFeature user0;
+
 
     @BeforeAll
     public static void oneTimeSetUp() throws Exception {
@@ -82,11 +84,70 @@ public class OrderSystemTestSuite {
         webTarget = client.target(uri);
     }
 
+    // create
+    @Test
+    public void test01_add_one_product_with_adminrole() {
+        ProductPojo productPojo = new ProductPojo();
+        productPojo.setDescription("productdesc_1");
+        productPojo.setSerialNo("001");
+        productPojo.setId(1);
+
+        Response response = webTarget
+                .register(adminAuth)
+                .path(PRODUCT_RESOURCE_NAME + SLASH)
+                .request()
+                .post(Entity.entity(productPojo, MediaType.APPLICATION_JSON_TYPE));
+        assertThat(response.getStatus(), is(200));
+
+    }
 
     @Test
-    public void test01_add_one_custmoer_with_adminrole() {
+    public void test02_add_one_product_with_userrole() {
+        ProductPojo productPojo = new ProductPojo();
+        productPojo.setDescription("productdesc_2");
+        productPojo.setSerialNo("002");
+        productPojo.setId(2);
+
+        Response response = webTarget
+                .register(userAuth)
+                .path(PRODUCT_RESOURCE_NAME + SLASH)
+                .request()
+                .post(Entity.entity(productPojo, MediaType.APPLICATION_JSON_TYPE));
+        assertThat(response.getStatus(), is(200));
+    }
+
+    @Test
+    public void test03_add_one_product_with_adminrole() {
+        StorePojo storePojo = new StorePojo();
+        storePojo.setStoreName("storeName1");
+        storePojo.setId(1);
+
+
+        Response response = webTarget
+                .register(adminAuth)
+                .path(STORE_RESOURCE_NAME + SLASH)
+                .request()
+                .post(Entity.entity(storePojo, MediaType.APPLICATION_JSON_TYPE));
+        assertThat(response.getStatus(), is(200));
+    }
+
+    @Test
+    public void test04_add_one_product_with_userrole() {
+        StorePojo storePojo = new StorePojo();
+        storePojo.setStoreName("storeName2");
+        storePojo.setId(2);
+
+        Response response = webTarget
+                .register(userAuth)
+                .path(STORE_RESOURCE_NAME + SLASH)
+                .request()
+                .post(Entity.entity(storePojo, MediaType.APPLICATION_JSON_TYPE));
+        assertThat(response.getStatus(), is(200));
+    }
+
+    @Test
+    public void test05_add_one_custmoer_with_adminrole() {
         CustomerPojo customerPojo = new CustomerPojo();
-        customerPojo.setId(1);
         customerPojo.setPhoneNumber("613-261-2222");
         customerPojo.setLastName("Tom");
         customerPojo.setFirstName("jam");
@@ -107,10 +168,9 @@ public class OrderSystemTestSuite {
     }
 
     @Test
-    public void test02_add_one_custmoer_with_userrole() {
+    public void test06_add_one_custmoer_with_userrole() {
 
         CustomerPojo customerPojo = new CustomerPojo();
-        customerPojo.setId(2);
         customerPojo.setPhoneNumber("613-261-2223");
         customerPojo.setLastName("Tom1");
         customerPojo.setFirstName("jam1");
@@ -132,21 +192,36 @@ public class OrderSystemTestSuite {
     }
 
     @Test
-    public void test03_all_customers_with_adminrole() throws JsonMappingException, JsonProcessingException {
+    public void test07_add_one_order_with_adminrole() {
+        OrderPojo orderPojo = new OrderPojo();
+        orderPojo.setDescription("order1_desc");
         Response response = webTarget
                 .register(adminAuth)
-                .path(CUSTOMER_RESOURCE_NAME + SLASH)
+                .path(CUSTOMER_RESOURCE_NAME + ONE_CUST_ALL_ORDER + SLASH)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
                 .request()
-                .get();
+                .post(Entity.entity(orderPojo, MediaType.APPLICATION_JSON_TYPE));
         assertThat(response.getStatus(), is(200));
-        List<CustomerPojo> custs = response.readEntity(new GenericType<List<CustomerPojo>>() {
-        });
-        assertThat(custs, is(not(empty())));
-        assertThat(custs, hasSize(2));
+
     }
 
     @Test
-    public void test04_all_customers_with_userrole() {
+    public void test08_add_one_order_with_userrole() {
+        OrderPojo orderPojo = new OrderPojo();
+        orderPojo.setDescription("order2_desc");
+        Response response = webTarget
+                .register(userAuth)
+                .path(CUSTOMER_RESOURCE_NAME + ONE_CUST_ALL_ORDER + SLASH)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
+                .request()
+                .post(Entity.entity(orderPojo, MediaType.APPLICATION_JSON_TYPE));
+        assertThat(response.getStatus(), is(200));
+    }
+
+    //read
+
+    @Test
+    public void test09_all_customers_with_userrole() {
 
         Response response = webTarget
                 .register(userAuth)
@@ -161,7 +236,7 @@ public class OrderSystemTestSuite {
     }
 
     @Test
-    public void test05_get_one_customers_with_adminrole() {
+    public void test10_get_one_customers_with_adminrole() {
         Response response = webTarget
                 .register(adminAuth)
                 .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
@@ -175,18 +250,118 @@ public class OrderSystemTestSuite {
     }
 
     @Test
-    public void test06_get_one_customers_with_userrole() {
+    public void test11_get_one_customer_with_self_userole(){
+
+        Response response = webTarget
+                .register(userAuth)
+                .path(CUSTOMER_RESOURCE_NAME + SLASH)
+                .request()
+                .get();
+        assertThat(response.getStatus(), is(200));
+        List<CustomerPojo> customerlist = response.readEntity(new GenericType<>() {
+        });
+        assertThat(customerlist, hasSize(2));
+    }
+
+    @Test
+    public void test12_get_one_customers_with_userrole() {
         Response response = webTarget
                 .register(userAuth)
                 .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
-                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
                 .request()
                 .get();
         assertThat(response.getStatus(), is(403));
     }
 
     @Test
-    public void test07_update_one_customer_with_adminrole() {
+    public void test13_get_one_customers_with_no_role(){
+        Response response = webTarget
+                .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+                .request()
+                .get();
+        assertThat(response.getStatus(), is(401));
+    }
+    @Test
+    public void test14_get_one_customer_with_selfuserrole(){
+            user0 = HttpAuthenticationFeature.basic("user0", DEFAULT_USER_PASSWORD);
+        Response response = webTarget
+                .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+                .register(user0)
+                .request()
+                .get();
+        assertThat(response.getStatus(), is(401));
+
+    }
+
+    @Test
+    public void test15_get_one_order_all_orderlines_with_adminrole() {
+        Response response = webTarget
+                .register(adminAuth)
+                .path(CUSTOMER_RESOURCE_NAME + SLASH + ONE_ORDER_ALL_ORDERLINE)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+                .request()
+                .get();
+        assertThat(response.getStatus(), is(200));
+    }
+
+    @Test
+    public void test16_get_one_order_all_orderlines_with_userrole() {
+        Response response = webTarget
+                .register(userAuth)
+                .path(CUSTOMER_RESOURCE_NAME + SLASH + ONE_ORDER_ALL_ORDERLINE)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
+                .request()
+                .get();
+        assertThat(response.getStatus(), is(200));
+    }
+
+    @Test
+    public void test17_get_all_products_with_adminrole() {
+        Response response = webTarget
+                .register(adminAuth)
+                .path(PRODUCT_RESOURCE_NAME + SLASH)
+                .request()
+                .get();
+        assertThat(response.getStatus(), is(200));
+
+    }
+
+    @Test
+    public void test18_get_all_products_with_userrole() {
+        Response response = webTarget
+                .register(userAuth)
+                .path(PRODUCT_RESOURCE_NAME + SLASH)
+                .request()
+                .get();
+        assertThat(response.getStatus(), is(200));
+    }
+
+    @Test
+    public void test19_get_all_products_with_adminrole() {
+        Response response = webTarget
+                .register(adminAuth)
+                .path(STORE_RESOURCE_NAME + SLASH)
+                .request()
+                .get();
+        assertThat(response.getStatus(), is(200));
+    }
+
+    @Test
+    public void test20_get_all_products_with_userrole() {
+        Response response = webTarget
+                .register(userAuth)
+                .path(STORE_RESOURCE_NAME + SLASH)
+                .request()
+                .get();
+        assertThat(response.getStatus(), is(200));
+    }
+
+    // update
+    @Test
+    public void test21_update_one_customer_with_adminrole() {
         CustomerPojo customerPojo = new CustomerPojo();
         customerPojo.setPhoneNumber("613-261-2255");
         customerPojo.setLastName("Tom3");
@@ -209,7 +384,7 @@ public class OrderSystemTestSuite {
     }
 
     @Test
-    public void test08_update_one_customer_with_userrole() {
+    public void test22_update_one_customer_with_userrole() {
         CustomerPojo customerPojo = new CustomerPojo();
         customerPojo.setPhoneNumber("613-261-2255");
         customerPojo.setLastName("Tom3");
@@ -231,93 +406,8 @@ public class OrderSystemTestSuite {
         assertThat("tom3@jam.com", is(customer.getEmail()));
 
     }
-
-//    @Test
-//    public void test09_delete_one_customer_with_adminrole() {
-//        Response response = webTarget
-//                .register(adminAuth)
-//                .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
-//                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
-//                .request()
-//                .delete();
-//        assertThat(response.getStatus(), is(200));
-//    }
-//
-//    @Test
-//    public void test10_delete_one_customer_with_userrole() {
-//        Response response = webTarget
-//                .register(userAuth)
-//                .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
-//                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
-//                .request()
-//                .delete();
-//        assertThat(response.getStatus(), is(200));
-//    }
-
-    // order
-
     @Test
-    public void test11_add_one_order_with_adminrole() {
-        OrderPojo orderPojo = new OrderPojo();
-        orderPojo.setDescription("order1_desc");
-        Response response = webTarget
-                .register(adminAuth)
-                .path(CUSTOMER_RESOURCE_NAME + ONE_CUST_ALL_ORDER + SLASH)
-                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
-                .request()
-                .post(Entity.entity(orderPojo, MediaType.APPLICATION_JSON_TYPE));
-        assertThat(response.getStatus(), is(200));
-        OrderPojo orderPojo1 = response.readEntity(new GenericType<>() {
-        });
-        assertThat("order1_desc", is(orderPojo1.getDescription()));
-    }
-
-    @Test
-    public void test12_add_one_order_with_userrole() {
-        OrderPojo orderPojo = new OrderPojo();
-        orderPojo.setDescription("order2_desc");
-        Response response = webTarget
-                .register(userAuth)
-                .path(CUSTOMER_RESOURCE_NAME + ONE_CUST_ALL_ORDER + SLASH)
-                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
-                .request()
-                .post(Entity.entity(orderPojo, MediaType.APPLICATION_JSON_TYPE));
-        assertThat(response.getStatus(), is(200));
-        OrderPojo orderPojo1 = response.readEntity(new GenericType<>() {
-        });
-        assertThat("order2_desc", is(orderPojo1.getDescription()));
-    }
-
-    @Test
-    public void test13_get_one_order_with_adminrole() {
-        Response response = webTarget
-                .register(adminAuth)
-                .path(CUSTOMER_RESOURCE_NAME + ONE_ORDER_ONE_ORDERLINE + SLASH)
-                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
-                .request()
-                .get();
-        assertThat(response.getStatus(), is(200));
-//        OrderPojo orderPojo1 = response.readEntity(new GenericType<>() {
-//        });
-//        assertThat("order1_desc", is(orderPojo1.getDescription()));
-    }
-
-    @Test
-    public void test14_get_one_order_with_userrole() {
-        Response response = webTarget
-                .register(userAuth)
-                .path(CUSTOMER_RESOURCE_NAME + ONE_ORDER_ONE_ORDERLINE + SLASH)
-                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
-                .request()
-                .get();
-        assertThat(response.getStatus(), is(200));
-//        OrderPojo orderPojo1 = response.readEntity(new GenericType<>() {
-//        });
-//        assertThat("order2_desc", is(orderPojo1.getDescription()));
-    }
-
-    @Test
-    public void test17_update_one_order_with_adminrole() {
+    public void test23_update_one_order_with_adminrole() {
         OrderPojo updateOrder = new OrderPojo();
         updateOrder.setDescription("newOrder1_desc");
         Response response = webTarget
@@ -329,11 +419,11 @@ public class OrderSystemTestSuite {
         assertThat(response.getStatus(), is(200));
         OrderPojo orderPojo1 = response.readEntity(new GenericType<>() {
         });
-        assertThat("neworder1_desc", is(orderPojo1.getDescription()));
+        assertThat("newOrder1_desc", is(orderPojo1.getDescription()));
     }
 
     @Test
-    public void test18_update_one_order_with_userrole() {
+    public void test24_update_one_order_with_userrole() {
         OrderPojo updateOrder = new OrderPojo();
         updateOrder.setDescription("newOrder2_desc");
         Response response = webTarget
@@ -345,168 +435,11 @@ public class OrderSystemTestSuite {
         assertThat(response.getStatus(), is(200));
         OrderPojo orderPojo1 = response.readEntity(new GenericType<>() {
         });
-        assertThat("neworder2_desc", is(orderPojo1.getDescription()));
-    }
-
-//    @Test
-//    public void test19_delete_one_order_with_adminrole() {
-//        Response response = webTarget
-//                .register(adminAuth)
-//                .path(CUSTOMER_RESOURCE_NAME +ONE_CUST_ONE_ORDER)
-//                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
-//                .request()
-//                .delete();
-//        assertThat(response.getStatus(), is(200));
-//        OrderPojo orderPojo1 = response.readEntity(new GenericType<>() {
-//        });
-//        assertThat("neworder1_desc", is(orderPojo1.getDescription()));
-//    }
-//
-//    @Test
-//    public void test20_delete_one_order_with_userrole() {
-//        Response response = webTarget
-//                .register(userAuth)
-//                .path(CUSTOMER_RESOURCE_NAME + ONE_CUST_ONE_ORDER)
-//                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
-//                .request()
-//                .delete();
-//        assertThat(response.getStatus(), is(200));
-//        OrderPojo orderPojo1 = response.readEntity(new GenericType<>() {
-//        });
-//        assertThat("neworder2_desc", is(orderPojo1.getDescription()));
-//    }
-
-    // orderline
-    @Test
-    public void test21_get_one_order_all_orderlines_with_adminrole() {
-        Response response = webTarget
-                .register(adminAuth)
-                .path(CUSTOMER_RESOURCE_NAME + SLASH + ONE_ORDER_ALL_ORDERLINE)
-                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
-                .request()
-                .get();
-        assertThat(response.getStatus(), is(200));
+        assertThat("newOrder2_desc", is(orderPojo1.getDescription()));
     }
 
     @Test
-    public void test22_get_one_order_all_orderlines_with_userrole() {
-        Response response = webTarget
-                .register(userAuth)
-                .path(CUSTOMER_RESOURCE_NAME + SLASH + ONE_ORDER_ALL_ORDERLINE)
-                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
-                .request()
-                .get();
-        assertThat(response.getStatus(), is(200));
-    }
-
-    @Test
-    public void test23_update_one_orderline_with_adminrole() {
-        OrderLinePojo orderLinePojo = new OrderLinePojo();
-        orderLinePojo.setPrice(11.11);
-        orderLinePojo.setAmount(221.0);
-        Response response = webTarget
-                .register(adminAuth)
-                .path(CUSTOMER_RESOURCE_NAME + SLASH + ONE_ORDER_ONE_ORDERLINE)
-                .resolveTemplate("id", 1)
-                .resolveTemplate("id2", 1)
-                .request()
-                .put(Entity.entity(orderLinePojo, MediaType.APPLICATION_JSON_TYPE));
-        assertThat(response.getStatus(), is(200));
-
-    }
-
-    @Test
-    public void test24_update_one_orderline_with_userrole() {
-        OrderLinePojo orderLinePojo = new OrderLinePojo();
-        orderLinePojo.setPrice(22.11);
-        orderLinePojo.setAmount(33.0);
-        Response response = webTarget
-                .register(userAuth)
-                .path(CUSTOMER_RESOURCE_NAME + SLASH + ONE_ORDER_ONE_ORDERLINE)
-                .resolveTemplate("id", 2)
-                .resolveTemplate("id2", 2)
-                .request()
-                .put(Entity.entity(orderLinePojo, MediaType.APPLICATION_JSON_TYPE));
-        assertThat(response.getStatus(), is(200));
-    }
-
-    @Test
-    public void test25_delete_one_orderline_with_adminrole() {
-        Response response = webTarget
-                .register(adminAuth)
-                .path(CUSTOMER_RESOURCE_NAME + SLASH + ONE_ORDER_ONE_ORDERLINE)
-                .resolveTemplate("id", 1)
-                .resolveTemplate("id2", 1)
-                .request()
-                .delete();
-        assertThat(response.getStatus(), is(200));
-    }
-
-    @Test
-    public void test26_delete_one_orderline_with_userrole() {
-        Response response = webTarget
-                .register(userAuth)
-                .path(CUSTOMER_RESOURCE_NAME + SLASH + ONE_ORDER_ONE_ORDERLINE)
-                .resolveTemplate("id", 2)
-                .resolveTemplate("id2", 2)
-                .request()
-                .delete();
-        assertThat(response.getStatus(), is(200));
-    }
-
-    // product
-    @Test
-    public void test27_add_one_product_with_adminrole() {
-        ProductPojo productPojo = new ProductPojo();
-        productPojo.setDescription("productdesc_1");
-        productPojo.setSerialNo("001");
-
-        Response response = webTarget
-                .register(adminAuth)
-                .path(PRODUCT_RESOURCE_NAME + SLASH)
-                .request()
-                .post(Entity.entity(productPojo, MediaType.APPLICATION_JSON_TYPE));
-        assertThat(response.getStatus(), is(200));
-
-    }
-
-    @Test
-    public void test28_add_one_product_with_userrole() {
-        ProductPojo productPojo = new ProductPojo();
-        productPojo.setDescription("productdesc_2");
-        productPojo.setSerialNo("002");
-
-        Response response = webTarget
-                .register(userAuth)
-                .path(PRODUCT_RESOURCE_NAME + SLASH)
-                .request()
-                .post(Entity.entity(productPojo, MediaType.APPLICATION_JSON_TYPE));
-        assertThat(response.getStatus(), is(200));
-    }
-
-    @Test
-    public void test29_get_all_products_with_adminrole() {
-        Response response = webTarget
-                .register(adminAuth)
-                .path(PRODUCT_RESOURCE_NAME + SLASH)
-                .request()
-                .get();
-        assertThat(response.getStatus(), is(200));
-
-    }
-
-    @Test
-    public void test30_get_all_products_with_userrole() {
-        Response response = webTarget
-                .register(userAuth)
-                .path(PRODUCT_RESOURCE_NAME + SLASH)
-                .request()
-                .get();
-        assertThat(response.getStatus(), is(200));
-    }
-
-    @Test
-    public void test31_update_one_product_with_adminrole() {
+    public void test27_update_one_product_with_adminrole() {
         ProductPojo productPojo = new ProductPojo();
         productPojo.setDescription("newProductdesc_1");
         productPojo.setSerialNo("003");
@@ -521,7 +454,7 @@ public class OrderSystemTestSuite {
     }
 
     @Test
-    public void test32_update_one_product_with_userrole() {
+    public void test28_update_one_product_with_userrole() {
         ProductPojo productPojo = new ProductPojo();
         productPojo.setDescription("newProductdesc_2");
         productPojo.setSerialNo("004");
@@ -536,77 +469,7 @@ public class OrderSystemTestSuite {
     }
 
     @Test
-    public void test33_delete_one_product_with_adminrole() {
-        Response response = webTarget
-                .register(adminAuth)
-                .path(PRODUCT_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
-                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
-                .request()
-                .delete();
-        assertThat(response.getStatus(), is(200));
-    }
-
-    @Test
-    public void test34_delete_one_product_with_userrole() {
-        Response response = webTarget
-                .register(userAuth)
-                .path(PRODUCT_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
-                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
-                .request()
-                .delete();
-        assertThat(response.getStatus(), is(200));
-    }
-
-    // store
-    @Test
-    public void test35_add_one_product_with_adminrole() {
-        StorePojo storePojo = new StorePojo();
-        storePojo.setStoreName("storeName1");
-
-
-        Response response = webTarget
-                .register(adminAuth)
-                .path(STORE_RESOURCE_NAME + SLASH)
-                .request()
-                .post(Entity.entity(storePojo, MediaType.APPLICATION_JSON_TYPE));
-        assertThat(response.getStatus(), is(200));
-    }
-
-    @Test
-    public void test36_add_one_product_with_userrole() {
-        StorePojo storePojo = new StorePojo();
-        storePojo.setStoreName("storeName2");
-
-        Response response = webTarget
-                .register(userAuth)
-                .path(STORE_RESOURCE_NAME + SLASH)
-                .request()
-                .post(Entity.entity(storePojo, MediaType.APPLICATION_JSON_TYPE));
-        assertThat(response.getStatus(), is(200));
-    }
-
-    @Test
-    public void test37_get_all_products_with_adminrole() {
-        Response response = webTarget
-                .register(adminAuth)
-                .path(STORE_RESOURCE_NAME + SLASH)
-                .request()
-                .get();
-        assertThat(response.getStatus(), is(200));
-    }
-
-    @Test
-    public void test38_get_all_products_with_userrole() {
-        Response response = webTarget
-                .register(userAuth)
-                .path(STORE_RESOURCE_NAME + SLASH)
-                .request()
-                .get();
-        assertThat(response.getStatus(), is(200));
-    }
-
-    @Test
-    public void test39_update_one_product_with_adminrole() {
+    public void test29_update_one_product_with_adminrole() {
         StorePojo storePojo = new StorePojo();
         storePojo.setStoreName("newStoreName_1");
 
@@ -621,7 +484,7 @@ public class OrderSystemTestSuite {
     }
 
     @Test
-    public void test40_update_one_product_with_userrole() {
+    public void test30_update_one_product_with_userrole() {
         StorePojo storePojo = new StorePojo();
         storePojo.setStoreName("newStoreName_2");
         Response response = webTarget
@@ -633,8 +496,96 @@ public class OrderSystemTestSuite {
         assertThat(response.getStatus(), is(200));
     }
 
+//    delete
+
     @Test
-    public void test41_delete_one_product_with_adminrole() {
+    public void test31_delete_one_customer_with_adminrole() {
+        Response response = webTarget
+                .register(adminAuth)
+                .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+                .request()
+                .delete();
+        assertThat(response.getStatus(), is(200));
+    }
+
+    @Test
+    public void test32_delete_one_customer_with_userrole() {
+        Response response = webTarget
+                .register(userAuth)
+                .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
+                .request()
+                .delete();
+        assertThat(response.getStatus(), is(200));
+    }
+
+    @Test
+    public void test33_delete_one_customer_with_no_role(){
+        Response response = webTarget
+                .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+                .request()
+                .delete();
+        assertThat(response.getStatus(), is(401));
+    }
+
+    @Test
+    public void test34_delete_one_product_with_no_role(){
+        Response response = webTarget
+                .path(PRODUCT_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+                .request()
+                .delete();
+        assertThat(response.getStatus(), is(401));
+    }
+
+    @Test
+    public void test35_delete_one_store_with_no_role(){
+        Response response = webTarget
+                .path(STORE_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+                .request()
+                .delete();
+        assertThat(response.getStatus(), is(401));
+    }
+
+    @Test
+    public void test36_delete_one_order_with_no_role(){
+        Response response = webTarget
+                .path(CUSTOMER_RESOURCE_NAME + ONE_CUST_ONE_ORDER)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+                .resolveTemplate("id2", 1)
+                .request()
+                .delete();
+        assertThat(response.getStatus(), is(401));
+    }
+
+
+    @Test
+    public void test37_delete_one_product_with_adminrole() {
+        Response response = webTarget
+                .register(adminAuth)
+                .path(PRODUCT_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+                .request()
+                .delete();
+        assertThat(response.getStatus(), is(200));
+    }
+
+    @Test
+    public void test38_delete_one_product_with_userrole() {
+        Response response = webTarget
+                .register(userAuth)
+                .path(PRODUCT_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 2)
+                .request()
+                .delete();
+        assertThat(response.getStatus(), is(200));
+    }
+
+    @Test
+    public void test39_delete_one_store_with_adminrole() {
         Response response = webTarget
                 .register(adminAuth)
                 .path(STORE_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
@@ -645,7 +596,7 @@ public class OrderSystemTestSuite {
     }
 
     @Test
-    public void test42_delete_one_product_with_userrole() {
+    public void test40_delete_one_store_with_userrole() {
         Response response = webTarget
                 .register(userAuth)
                 .path(STORE_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)

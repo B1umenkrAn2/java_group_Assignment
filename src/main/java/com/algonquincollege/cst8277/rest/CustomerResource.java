@@ -215,6 +215,7 @@ public class CustomerResource {
 
     // orderline
 
+
     @GET
     @Path(ONE_ORDER_ALL_ORDERLINE)
     @RolesAllowed({ADMIN_ROLE,USER_ROLE})
@@ -235,7 +236,7 @@ public class CustomerResource {
 
     @POST
     @Path(ONE_ORDER_ALL_ORDERLINE)
-    @RolesAllowed({ADMIN_ROLE,USER_ROLE})
+//    @RolesAllowed({ADMIN_ROLE,USER_ROLE})
     public Response addOrderLineToOrderById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, OrderLinePojo olp) {
         servletContext.log("try to add new OrderLine to a  specific orderLine" + id);
         OrderPojo orderPojo = customerServiceBean.addOrderLineToOrder(id, olp);
