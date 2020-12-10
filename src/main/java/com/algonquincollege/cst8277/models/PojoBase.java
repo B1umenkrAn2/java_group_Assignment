@@ -65,7 +65,6 @@ public abstract class PojoBase implements Serializable {
     }
 
     
-    @JsonIgnore
     @Version
     public int getVersion() {
         return version;
@@ -79,7 +78,6 @@ public abstract class PojoBase implements Serializable {
      * 
      * @return
      */
-    @JsonIgnore
     @Column(name = "CREATED")
     public LocalDateTime getCreatedDate() {
         return created;
@@ -99,7 +97,6 @@ public abstract class PojoBase implements Serializable {
      * 
      * @return current value for "updated"
      */
-    @JsonIgnore
     @Column(name = "UPDATED")
     public LocalDateTime getUpdatedDate() {
         return updated;

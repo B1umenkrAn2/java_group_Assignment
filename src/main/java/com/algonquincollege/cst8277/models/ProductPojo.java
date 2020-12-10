@@ -1,8 +1,7 @@
 /*****************************************************************c******************o*******v******id********
- * File: OrderPojo.java
+ * File: ProductPojo.java
  * Course materials (20F) CST 8277
- *
- * @author (original) Mike Norman
+ * (Original Author) Mike Norman
  * 
  * update by : Lai Shan Law (040595733)
  *             Siyang Xiong (040938012)
@@ -10,43 +9,47 @@
  */
 package com.algonquincollege.cst8277.models;
 
-import javax.persistence.*;
-import javax.xml.namespace.QName;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.AttributeOverride;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
 *
 * Description: model for the Product object
 */
+
 @Entity(name="Product")
 @Table(name = "PRODUCT")
-@AttributeOverride(name = "id", column = @Column(name = "PRODUCT_ID"))
+@Access(AccessType.PROPERTY)
+@AttributeOverride(name = "id", column = @Column(name="PRODUCT_ID"))
 public class ProductPojo extends PojoBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Product description
+     * Member variables
      */
     protected String description;
-    /**
-     * Product serial number
-     */
     protected String serialNo;
-    /**
-     * List of stores which sell this product
-     */
     protected Set<StorePojo> stores = new HashSet<>();
-
-
+    
     // JPA requires each @Entity class have a default constructor
     public ProductPojo() {
     }
     
+
     /**
      * Getter for description
      * 
@@ -64,7 +67,7 @@ public class ProductPojo extends PojoBase implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
     /**
      * Getter for serialNo
      * 
@@ -83,19 +86,18 @@ public class ProductPojo extends PojoBase implements Serializable {
         this.serialNo = serialNo;
     }
     
+    // Additional Mapping for M:N properties
+    @JsonInclude(Include.NON_NULL)
     /**
      * Getter for stores selling this product. It has many-to-many relationship with StorePojo
      * 
      * @return current list of stores selling this product
      */
-    @JsonInclude(Include.NON_NULL)
-    @ManyToMany
-    @JoinTable(name = "STORES_PRODUCTS",joinColumns = {@JoinColumn(name = "PRODUCT_ID",referencedColumnName = "PRODUCT_ID")},
-            inverseJoinColumns = {@JoinColumn(name = "STORE_ID",referencedColumnName = "STORE_ID")})
+    @ManyToMany(mappedBy = "products",cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     public Set<StorePojo> getStores() {
         return stores;
     }
-
+    
     /**
      * Sett for stores to sell this product
      * 

@@ -14,6 +14,7 @@ package com.algonquincollege.cst8277;
 import static com.algonquincollege.cst8277.utils.MyConstants.CUSTOMER_RESOURCE_NAME;
 import static com.algonquincollege.cst8277.utils.MyConstants.RESOURCE_PATH_ID_ELEMENT;
 import static com.algonquincollege.cst8277.utils.MyConstants.RESOURCE_PATH_ID_PATH;
+import static com.algonquincollege.cst8277.utils.MyConstants.CUSTOMER_ADDRESS_SUBRESOURCE_NAME;
 import static com.algonquincollege.cst8277.utils.MyConstants.USER_ROLE;
 import static com.algonquincollege.cst8277.utils.MyConstants.CUSTOMER_ADDRESS_RESOURCE_PATH;
 import static com.algonquincollege.cst8277.utils.MyConstants.CUSTOMER_RESOURCE_ORDER;
@@ -28,6 +29,7 @@ import static com.algonquincollege.cst8277.utils.MyConstants.ACCESS_REQUIRES_AUT
 import static com.algonquincollege.cst8277.utils.MyConstants.PRODUCT_RESOURCE_NAME;
 import static com.algonquincollege.cst8277.utils.MyConstants.RESOURCE_PATH_DESCRIPTION_PATH;
 import static com.algonquincollege.cst8277.utils.MyConstants.RESOURCE_PATH_DESCRIPTION_ELEMENT;
+import static com.algonquincollege.cst8277.utils.MyConstants.SLASH;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
@@ -52,6 +54,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -86,9 +89,6 @@ import com.algonquincollege.cst8277.models.ShippingAddressPojo;
 import com.algonquincollege.cst8277.models.StorePojo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-
-import com.algonquincollege.cst8277.rest.HttpErrorResponse;
-
 
 @TestMethodOrder(MethodOrderer.Alphanumeric.class)
 public class OrderSystemTestSuite {
@@ -173,10 +173,6 @@ public class OrderSystemTestSuite {
         assertThat(custs.get(0).getPhoneNumber(), is(equalToIgnoringCase(CUST1_PHONE)));
     }
     
-    // TODO - create39 more test-cases that send GET/PUT/POST/DELETE messages
-    // to REST'ful endpoints for the OrderSystem entities using the JAX-RS
-    // ClientBuilder APIs
-
     @Test
     public void test02_find_all_customers_with_userA() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
@@ -474,16 +470,17 @@ public class OrderSystemTestSuite {
        
        //only Admin role is able to add address to customer
        Response response = webTarget
-          .register(userA_Auth)
+//          .register(userA_Auth)
+          .register(adminAuth)
           .path(CUSTOMER_RESOURCE_NAME + CUSTOMER_ADDRESS_RESOURCE_PATH)
           .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 3)
           .request()
           .put(Entity.entity(billingAddr, MediaType.APPLICATION_JSON_TYPE));
        
 //       assertThat(response.getStatus(), is(403));
-       assertThat(response.getStatus(), is(FORBIDDEN.getStatusCode()));
-      
+//       assertThat(response.getStatus(), is(FORBIDDEN.getStatusCode()));
   }
+      
 
    // Order and OrderLine
    @Test
@@ -839,6 +836,66 @@ public class OrderSystemTestSuite {
     */
     
     @Test
+    public void test40_create_new_store_with_new_product() throws JsonMappingException, JsonProcessingException {
+        logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+
+        StorePojo store = new StorePojo();
+        store.setStoreName("WALMART-BASELINE");
+        
+        ProductPojo product = new ProductPojo();
+
+        product.setDescription("Old Navey Baby Cloth");
+        product.setSerialNo("6666-121-2323");
+        
+        Set<ProductPojo> productList = new HashSet<>();
+        productList.add(product);
+        store.setProducts(productList);
+        
+        Response response = webTarget
+                .register(adminAuth)
+                .path(PRODUCT_RESOURCE_NAME)
+                .request()
+                .post(Entity.entity(store, MediaType.APPLICATION_JSON_TYPE));
+
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+    }
+    
+    @Test
+    public void test40_create_new_store() throws JsonMappingException, JsonProcessingException {
+        logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+
+        StorePojo store = new StorePojo();
+        store.setStoreName("WALMART-KANATA");
+        
+        Response response = webTarget
+                .register(adminAuth)
+                .path(STORE_RESOURCE_NAME)
+                .request()
+                .post(Entity.entity(store, MediaType.APPLICATION_JSON_TYPE));
+
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+    }
+    
+    
+    @Test
+    public void test40_create_new_product() throws JsonMappingException, JsonProcessingException {
+        logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+
+        ProductPojo product = new ProductPojo();
+
+        product.setDescription("LG LED HD TV");
+        product.setSerialNo("1111-222-3333");
+
+        Response response = webTarget
+                .register(adminAuth)
+                .path(PRODUCT_RESOURCE_NAME)
+                .request()
+                .post(Entity.entity(product, MediaType.APPLICATION_JSON_TYPE));
+
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+    }
+    
+    @Test
     public void test41_find_all_products() throws JsonMappingException, JsonProcessingException {
         logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
         
@@ -989,7 +1046,6 @@ public class OrderSystemTestSuite {
     }
     
     // org.eclipse.persistence.exceptions.OptimisticLockException
-    @Disabled
     @Test
     public void test49_add_all_stores_to_all_products_with_adminrole() throws JsonMappingException, JsonProcessingException {
         logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
@@ -1041,7 +1097,57 @@ public class OrderSystemTestSuite {
     }
     
     // org.eclipse.persistence.exceptions.OptimisticLockException
-    @Disabled
+    @Test
+    public void test50_add_last_store_to_last_product_with_adminrole() throws JsonMappingException, JsonProcessingException {
+        logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+        
+        Response response = webTarget
+                .path(PRODUCT_RESOURCE_NAME)
+                .request()
+                .get();
+        assertThat(response.getStatus(), is(OK.getStatusCode()));     
+        Set<ProductPojo> productSet = response.readEntity(new GenericType<Set<ProductPojo>>(){});
+        
+        List<ProductPojo> productList = new ArrayList<>(productSet);
+        ProductPojo lastProduct = productList.get(productList.size() - 1);
+        
+        response = webTarget
+                .path(STORE_RESOURCE_NAME)
+                .request()
+                .get();        
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+        Set<StorePojo> storeSet = response.readEntity(new GenericType<Set<StorePojo>>(){});
+        
+        List<StorePojo> storeList = new ArrayList<>(storeSet);
+        StorePojo lastStore = storeList.get(storeList.size() - 1);
+        
+        Set<StorePojo> productStores = lastProduct.getStores();
+        productStores.add(lastStore);
+        
+        Set<ProductPojo> storeProduct = lastStore.getProducts();
+        storeProduct.add(lastProduct);
+        
+//        lastProduct.setStores(new HashSet<StorePojo>(){{add(lastStore);}});
+        lastProduct.setStores(productStores);
+        
+        response = webTarget
+                .register(adminAuth)
+                .path(PRODUCT_RESOURCE_NAME)
+                .request()
+                .put(Entity.entity(lastProduct, MediaType.APPLICATION_JSON_TYPE));
+            
+       assertThat(response.getStatus(), is(OK.getStatusCode()));
+       
+       
+       response = webTarget
+               .register(adminAuth)
+               .path(STORE_RESOURCE_NAME)
+               .request()
+               .put(Entity.entity(lastStore, MediaType.APPLICATION_JSON_TYPE));
+           
+      assertThat(response.getStatus(), is(OK.getStatusCode()));
+    }
+    
     @Test
     public void test50_add_a_store_to_a_products_with_adminrole() throws JsonMappingException, JsonProcessingException {
         logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
@@ -1066,7 +1172,15 @@ public class OrderSystemTestSuite {
         
         StorePojo foundStore = response.readEntity(new GenericType<StorePojo>(){});
         
-        foundProduct.setStores(new HashSet<StorePojo>(){{add(foundStore);}});
+        Set<StorePojo> productStores = foundProduct.getStores();
+        productStores.add(foundStore);
+        
+        Set<ProductPojo> storeProduct = foundStore.getProducts();
+        storeProduct.add(foundProduct);
+        
+
+        foundProduct.setStores(productStores);
+        foundStore.setProducts(storeProduct);
         
         response = webTarget
                 .register(adminAuth)
@@ -1074,6 +1188,14 @@ public class OrderSystemTestSuite {
                 .request()
                 .put(Entity.entity(foundProduct, MediaType.APPLICATION_JSON_TYPE));
             
+       assertThat(response.getStatus(), is(OK.getStatusCode()));
+       
+       response = webTarget
+               .register(adminAuth)
+               .path(STORE_RESOURCE_NAME)
+               .request()
+               .put(Entity.entity(foundStore, MediaType.APPLICATION_JSON_TYPE));
+       
        assertThat(response.getStatus(), is(OK.getStatusCode()));
    
     }
@@ -1169,15 +1291,13 @@ public class OrderSystemTestSuite {
         logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
         
         Response response = webTarget
-                .path(PRODUCT_RESOURCE_NAME)
+                .path(STORE_RESOURCE_NAME)
                 .request()
                 .get();
         List<StorePojo> stores = response.readEntity(new GenericType<List<StorePojo>>(){});
-        StorePojo lastStore = stores.get(stores.size() - 1);
         
         StorePojo newStore = new StorePojo();
         
-        newStore.setId(lastStore.getId() + 100);
         newStore.setStoreName("Home Depot");
         
         response = webTarget
@@ -1225,7 +1345,6 @@ public class OrderSystemTestSuite {
     }
     
     // org.eclipse.persistence.exceptions.OptimisticLockException
-    @Disabled
     @Test
     public void test59_add_a_product_to_a_store_with_adminrole() throws JsonMappingException, JsonProcessingException {
         logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
@@ -1237,7 +1356,6 @@ public class OrderSystemTestSuite {
                 .get();
 
         assertThat(response.getStatus(), is(OK.getStatusCode()));
-        
         ProductPojo foundProduct = response.readEntity(new GenericType<ProductPojo>(){});
         
         response = webTarget
@@ -1260,6 +1378,45 @@ public class OrderSystemTestSuite {
             
        assertThat(response.getStatus(), is(OK.getStatusCode()));
    
+    }
+    
+    
+    @Test
+    public void add_last_product_to_last_store_with_adminrole() throws JsonMappingException, JsonProcessingException {
+        logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+        
+        Response response = webTarget
+                .path(STORE_RESOURCE_NAME)
+                .request()
+                .get();
+        
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+        
+        List<StorePojo> stores = response.readEntity(new GenericType<List<StorePojo>>(){});
+        StorePojo lastStore = stores.get(stores.size() - 1);
+        
+        response = webTarget
+                .path(PRODUCT_RESOURCE_NAME)
+                .request()
+                .get();
+        
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+        
+        List<ProductPojo> products = response.readEntity(new GenericType<List<ProductPojo>>(){});
+        ProductPojo lastProduct = products.get(products.size() - 1);
+                
+        Set<ProductPojo> storeProducts = lastStore.getProducts();
+        storeProducts.add(lastProduct);
+        
+        lastStore.setProducts(storeProducts);
+        
+        response = webTarget
+             .register(adminAuth)
+             .path(STORE_RESOURCE_NAME)
+             .request()
+             .put(Entity.entity(lastStore, MediaType.APPLICATION_JSON_TYPE));
+        
+        assertThat(response.getStatus(), is(OK.getStatusCode()));        
     }
     
     @Test
@@ -1312,8 +1469,7 @@ public class OrderSystemTestSuite {
         assertThat(response.getStatus(), is(OK.getStatusCode()));
     }
     
-    // org.eclipse.persistence.exceptions.OptimisticLockException
-    @Disabled
+    // org.eclipse.persistence.exceptions.OptimisticLockException  
     @Test
     public void test63_update_order_with_adminrole() throws JsonMappingException, JsonProcessingException {
         logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
@@ -1382,9 +1538,45 @@ public class OrderSystemTestSuite {
         
         assertThat(response.getStatus(), is(OK.getStatusCode()));
     }
-       
+    
+    @Test
+    public void test65_create_order_for_last_customer() throws JsonMappingException, JsonProcessingException {
+        logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+        
+        OrderPojo order1 = new OrderPojo();
+        order1.setDescription("Walmart order");
+
+        OrderPojo order2 = new OrderPojo();
+        order2.setDescription("Costco order");
+
+        Set<OrderPojo> orders = new HashSet<>();
+        orders.add(order1);
+//        orders.add(order2);
+        
+        Response response = webTarget
+                .register(adminAuth)
+                .path(CUSTOMER_RESOURCE_NAME)
+                .request()
+                .get();
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+        List<CustomerPojo> allCustomers = response.readEntity(new GenericType<List<CustomerPojo>>(){});
+            
+        CustomerPojo lastCustomer = allCustomers.get(allCustomers.size() - 1);
+        
+        lastCustomer.setOrders(orders);
+        
+        response = webTarget
+                .register(adminAuth)
+                .path(CUSTOMER_RESOURCE_ORDER)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, lastCustomer.getId())
+                .request()
+                .put(Entity.entity(lastCustomer, MediaType.APPLICATION_JSON_TYPE));
+        
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+    }
+    
+   
     // org.eclipse.persistence.exceptions.OptimisticLockException
-    @Disabled
     @Test
     public void test70_add_last_order_to_customer() throws JsonMappingException, JsonProcessingException {
         logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
@@ -1410,13 +1602,228 @@ public class OrderSystemTestSuite {
         List<OrderPojo> orders = response.readEntity(new GenericType<List<OrderPojo>>(){});
         OrderPojo lastOrder = orders.get(orders.size() - 1 );
         
+        lastOrder.setOwningCustomer(firstCustomer);
+        
+        Set<OrderPojo> custCustOrders = firstCustomer.getOrders();
+        
+        custCustOrders.add(lastOrder);
+        
         response = webTarget
                 .register(adminAuth)
                 .path(CUSTOMER_RESOURCE_ORDER)
                 .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, firstCustomer.getId())
                 .request()
-                .post(Entity.entity(lastOrder, MediaType.APPLICATION_JSON_TYPE));
+                .put(Entity.entity(custCustOrders, MediaType.APPLICATION_JSON_TYPE));
                 
         assertThat(response.getStatus(), is(OK.getStatusCode()));    
     }
+    
+    @Test
+    public void test71_add_new_order_to_first_customer() throws JsonMappingException, JsonProcessingException {
+        logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+        
+        Response response = webTarget
+                //.register(userAuth)
+                .register(adminAuth)
+                .path(CUSTOMER_RESOURCE_NAME)
+                .request()
+                .get();
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+        List<CustomerPojo> allCustomers = response.readEntity(new GenericType<List<CustomerPojo>>(){});
+            
+        CustomerPojo firstCustomer = allCustomers.get(0);
+         
+        response = webTarget
+                .path(ORDER_RESOURCE_NAME)
+                .request()
+                .get();
+        
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+
+        OrderPojo newOrder = new OrderPojo();
+        
+        newOrder.setDescription("Farm Boy Order");
+        newOrder.setOwningCustomer(firstCustomer);
+        
+        Set<OrderPojo> custCustOrders = firstCustomer.getOrders();
+        custCustOrders.add(newOrder);
+        
+        response = webTarget
+                .register(adminAuth)
+                .path(CUSTOMER_RESOURCE_ORDER)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, firstCustomer.getId())
+                .request()
+                .put(Entity.entity(custCustOrders, MediaType.APPLICATION_JSON_TYPE));
+                
+        assertThat(response.getStatus(), is(OK.getStatusCode()));    
+    }
+    
+    
+    
+    @Test
+    public void test80_add_shipping_address_to_first_customer_by_UserA() throws JsonMappingException, JsonProcessingException {
+        logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+          
+        ShippingAddressPojo shippingAddr = new ShippingAddressPojo();
+        shippingAddr.setStreet("200 Earl Grey Dr");
+        shippingAddr.setCity("Ottawa");
+        shippingAddr.setCountry("Canada");
+        shippingAddr.setPostal("K2T 1B6");
+        shippingAddr.setState("ON");
+        
+        //only Admin role is able to add address to customer
+        Response response = webTarget
+           .register(adminAuth)
+           .path(CUSTOMER_RESOURCE_NAME + CUSTOMER_ADDRESS_RESOURCE_PATH)
+           .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+           .request()
+           .put(Entity.entity(shippingAddr, MediaType.APPLICATION_JSON_TYPE));
+        
+
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+    }
+    
+    @Test
+    public void test81_add_billing_address_to_first_customer_by_UserA() throws JsonMappingException, JsonProcessingException {
+        logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+          
+        BillingAddressPojo billingAddr = new BillingAddressPojo();
+        billingAddr.setStreet("1980 Baseline Rd");
+        billingAddr.setCity("Ottawa");
+        billingAddr.setCountry("Canada");
+        billingAddr.setPostal("K2T 1B6");
+        billingAddr.setState("ON");
+        billingAddr.setAlsoShipping(false);
+        
+        //only Admin role is able to add address to customer
+        Response response = webTarget
+           .register(adminAuth)
+           .path(CUSTOMER_RESOURCE_NAME + CUSTOMER_ADDRESS_RESOURCE_PATH)
+           .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+           .request()
+           .put(Entity.entity(billingAddr, MediaType.APPLICATION_JSON_TYPE));
+        
+
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+    }
+    
+    @Test
+    public void test82_get_all_addresses_from_first_customer_with_roleadmin() throws JsonMappingException, JsonProcessingException {
+        logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+        
+        BillingAddressPojo billingAddr = new BillingAddressPojo();
+        billingAddr.setStreet("1982 Baseline Rd");
+        billingAddr.setCity("Ottawa");
+        billingAddr.setCountry("Canada");
+        billingAddr.setPostal("K2T 1B6");
+        billingAddr.setState("ON");
+        billingAddr.setAlsoShipping(false);
+        
+        Response response = webTarget
+                .register(adminAuth)
+                .path(CUSTOMER_RESOURCE_NAME + CUSTOMER_ADDRESS_RESOURCE_PATH)
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+                .request()
+                .get();
+        
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+        
+        List<AddressPojo> allCustAddresses = response.readEntity(new GenericType<List<AddressPojo>>(){});
+        
+        for (AddressPojo address : allCustAddresses) {
+            if (address instanceof BillingAddressPojo) {
+                BillingAddressPojo billingAddressFromDB = (BillingAddressPojo) address;
+                
+                assertThat(billingAddressFromDB.getStreet(), is(equalToIgnoringCase("1980 Baseline Rd")));
+                
+                assertThat(billingAddressFromDB.getCity(), is(equalToIgnoringCase("Ottawa")));
+                assertThat(billingAddressFromDB.getState(), is(equalToIgnoringCase("ON")));
+                assertThat(billingAddressFromDB.getCountry(), is(equalToIgnoringCase("Canada")));
+                assertThat(billingAddressFromDB.getPostal(), is(equalToIgnoringCase("K2T 1B6")));       
+            } else if (address instanceof ShippingAddressPojo){
+                ShippingAddressPojo shippingAddrFromDB = (ShippingAddressPojo) address;
+                
+                assertThat(shippingAddrFromDB.getStreet(), is(equalToIgnoringCase("200 Earl Grey Dr")));   
+                assertThat(shippingAddrFromDB.getCity(), is(equalToIgnoringCase("Ottawa")));
+                assertThat(shippingAddrFromDB.getState(), is(equalToIgnoringCase("ON")));
+                assertThat(shippingAddrFromDB.getCountry(), is(equalToIgnoringCase("Canada")));
+                assertThat(shippingAddrFromDB.getPostal(), is(equalToIgnoringCase("K2T 1B6")));
+            }
+        }      
+    }
+    
+    @Test
+    public void test83_update_billing_address_for_first_customer_with_adminrole() throws JsonMappingException, JsonProcessingException {
+        logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+        
+        BillingAddressPojo billingAddr = new BillingAddressPojo();
+        billingAddr.setStreet("1882 Baseline Rd");
+        billingAddr.setCity("Ottawa");
+        billingAddr.setCountry("Canada");
+        billingAddr.setPostal("K2T 1B6");
+        billingAddr.setState("ON");
+        billingAddr.setAlsoShipping(true);
+        
+        Response response = webTarget
+                .register(adminAuth)
+                .path(CUSTOMER_RESOURCE_NAME + CUSTOMER_ADDRESS_RESOURCE_PATH + "/billing")
+                .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+                .request()
+                .put(Entity.entity(billingAddr, MediaType.APPLICATION_JSON_TYPE));
+        
+        assertThat(response.getStatus(), is(OK.getStatusCode()));
+    }
+        
+    
+//    @Test
+//    public void test84_shipping_address_from_first_customer_by_UserA() throws JsonMappingException, JsonProcessingException {
+//        logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+//
+//   }
+//    
+   @Test
+   public void test85_create_new_customer() throws JsonMappingException, JsonProcessingException {
+       logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+       
+       CustomerPojo customer = new CustomerPojo();
+       
+       customer.setEmail("zhao0066@algonquinlive.com");
+       customer.setFirstName("Angela");
+       customer.setLastName("Zhao");
+       customer.setPhoneNumber("613-345-8861");
+       
+       Response response = webTarget
+               .register(adminAuth)
+               .path(CUSTOMER_RESOURCE_NAME)
+               .request()
+               .post(Entity.entity(customer, MediaType.APPLICATION_JSON_TYPE));
+       
+       assertThat(response.getStatus(), is(OK.getStatusCode()));
+   }
+   
+   @Test
+   public void test86_delete_customer_billingAddress() throws JsonMappingException, JsonProcessingException {
+       logger.info("\n\n[" + Thread.currentThread().getStackTrace()[1].getMethodName() + "] ==>");
+           
+       Response response = webTarget
+               .register(adminAuth)
+               .path(CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH)
+               .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, 1)
+               .request()
+               .get();
+       
+       CustomerPojo firstCustomer = response.readEntity(new GenericType<CustomerPojo>(){});
+       int addressId = firstCustomer.getBillingAddress().getId();
+       
+                   
+       response = webTarget
+               .register(adminAuth)
+               .path(CUSTOMER_RESOURCE_NAME + CUSTOMER_ADDRESS_RESOURCE_PATH + "/{idAddress}")
+               .resolveTemplate(RESOURCE_PATH_ID_ELEMENT, firstCustomer.getId())
+               .resolveTemplate("idAddress", addressId)
+               .request()
+               .delete();
+       
+       assertThat(response.getStatus(), is(OK.getStatusCode()));
+   }
 }

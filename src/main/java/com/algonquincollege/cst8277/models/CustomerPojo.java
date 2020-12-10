@@ -9,8 +9,8 @@
 package com.algonquincollege.cst8277.models;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -58,7 +58,7 @@ public class CustomerPojo extends PojoBase implements Serializable {
     /**
      * Orders placed by this customer. It has 1:M relationship with Order table
      */
-    protected List<OrderPojo> Orders = new ArrayList<>();;
+    protected Set<OrderPojo> Orders = new HashSet<>();;
 
     // JPA requires each @Entity class have a default constructor
     public CustomerPojo() {
@@ -191,7 +191,7 @@ public class CustomerPojo extends PojoBase implements Serializable {
     @OneToMany(mappedBy = "owningCustomer",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
-    public List<OrderPojo> getOrders() {
+    public Set<OrderPojo> getOrders() {
         return Orders;
     }
 
@@ -200,7 +200,7 @@ public class CustomerPojo extends PojoBase implements Serializable {
      * 
      * @param orders new value for orders
      */
-    public void setOrders(List<OrderPojo> orders) {
+    public void setOrders(Set<OrderPojo> orders) {
         Orders = orders;
     }
 

@@ -107,7 +107,7 @@ public class CustomerResource {
     @RolesAllowed({ADMIN_ROLE})
     @Transactional
     public Response addCustomer(CustomerPojo newCustomer) {
-        servletContext.log("try to add a new customer " + newCustomer.getId());
+        servletContext.log("\n\n\n===> try to add a new customer " + newCustomer.getId());
         CustomerPojo newCustomerWithIdTimestamps = customerServiceBean.persistCustomer(newCustomer);
         //build a SecurityUser linked to the new customer
         customerServiceBean.buildUserForNewCustomer(newCustomerWithIdTimestamps);
@@ -130,12 +130,12 @@ public class CustomerResource {
         return Response.ok(customerPojo).build();
     }
 
+
     /**
-     * Add/update an address to a customer
-     * 
-     * @param id customer id
-     * @param newAddress new address
-     * @return JAX-RS response object
+     * Update a customer 
+     * @param id
+     * @param customerPojo
+     * @return
      */
     @PUT
     @RolesAllowed({ADMIN_ROLE})
@@ -155,7 +155,7 @@ public class CustomerResource {
      * @return JAX-RS response object
      */
     @PUT
-    @RolesAllowed({ ADMIN_ROLE })
+    @RolesAllowed({ ADMIN_ROLE, USER_ROLE })
     @Path(CUSTOMER_ADDRESS_RESOURCE_PATH)
     public Response addAddressForCustomer(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, AddressPojo newAddress) {
         servletContext.log("addAddress " + newAddress.toString() + "customer id " + id);
@@ -200,11 +200,6 @@ public class CustomerResource {
 //    }
 
 
-
-    
-    //TODO - endpoints for setting up Orders/OrderLines
-    
-
     /**
      * Add orders for the specified customer
      * 
@@ -214,8 +209,8 @@ public class CustomerResource {
      */
     @PUT
     @PermitAll
-    @Path(CUSTOMER_RESOURCE_ORDER)
-    public Response addOrdersForCustomer(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, List<OrderPojo> newOrders) {
+    @Path(CUSTOMER_ORDER_RESOURCE_PATH)
+    public Response addOrdersForCustomer(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id, Set<OrderPojo> newOrders) {
         Response response = null;
         CustomerPojo updatedCustomer = customerServiceBean.setOrdersForCustomer(id, newOrders);
         response = Response.ok(updatedCustomer).build();
@@ -257,10 +252,21 @@ public class CustomerResource {
             SecurityUser sUser = (SecurityUser)wCallerPrincipal.getWrapped();
             cust = sUser.getCustomer();
             //verfy customer name
-            order = cust.getOrders().get(id);
-            if (order != null) {
-                //order = customerServiceBean.getOrderbyId(id);
-                response = Response.status(OK).entity(order).build();
+            if (cust != null && cust.getId() == id) {
+                boolean isCustomerOrderId = false;
+                for (OrderPojo custOrder : cust.getOrders()) {
+                    if (custOrder.getId() == id) {
+                        isCustomerOrderId = true;
+                        break;
+                    }
+                }
+                // Check if this order id belongs to current user
+                if (isCustomerOrderId) {
+                    order = customerServiceBean.getOrderbyId(id);
+                    response = Response.status( order == null ? NOT_FOUND : OK).entity(order).build();
+                } else {
+                    response = Response.status(BAD_REQUEST).build();
+                }        
             }
             else {
                 throw new ForbiddenException();
@@ -269,14 +275,15 @@ public class CustomerResource {
         else {
             response = Response.status(BAD_REQUEST).build();
         }
+        
         return response;
     }
     
     
   //getOrderById
     @GET
-    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
-    @Path(CUSTOMER_RESOURCE_ORDER)//---("/{id:}/order")
+    @RolesAllowed({ADMIN_ROLE})
+    @Path(CUSTOMER_ORDER_RESOURCE_PATH)//---("/{id:}/order")
     public Response getCustomerAllOrdersByCustId(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         servletContext.log("try to retrieve specific order " + id);
         Response response = null;
@@ -357,19 +364,19 @@ public class CustomerResource {
         return response;
     }
 
-    /**
-     * Delete a customer's address
-     * 
-     * @param id
-     * @return
-     */
-    @DELETE
-    @Path("/address/{id:}")
-    @Transactional
-    public Response deleteCustomerAddressByid(@PathParam("id") int id) {
-        AddressPojo addressPojo = customerServiceBean.removeAddressByid(id);
-        return Response.ok(addressPojo).build();
-    }
+//    /**
+//     * Delete a customer's address
+//     * 
+//     * @param id
+//     * @return
+//     */
+//    @DELETE
+//    @Path("/address/{id}")
+//    @Transactional
+//    public Response deleteCustomerAddressByid(@PathParam("id") int id) {
+//        AddressPojo addressPojo = customerServiceBean.removeAddressByid(id);
+//        return Response.ok(addressPojo).build();
+//    }
     
     @PUT
     @Path("/address/{id:}")
@@ -380,6 +387,26 @@ public class CustomerResource {
         return Response.ok(addressPojo).build();
     }    
     
+    @PUT
+    @Path(CUSTOMER_ADDRESS_RESOURCE_PATH + "/billing")
+    @Transactional
+    public Response updateCustomerBillingAddress(@PathParam("id") int id, AddressPojo newAddress) {
+        servletContext.log("\n\ntry to update billing address for customer " + id);
+        CustomerPojo updatedCustomer = customerServiceBean.updateCustomerBillingAddress(id, newAddress);
+        Response response = Response.status(updatedCustomer == null ? NOT_FOUND : OK).entity(updatedCustomer).build();
+        return response;
+    }
+    
+    @DELETE
+    @RolesAllowed({ADMIN_ROLE})
+    @Path(CUSTOMER_ADDRESS_RESOURCE_PATH + "/{idAddress}")
+    @Transactional
+    public Response deleteCustomerAddress(@PathParam("id") int custId, @PathParam("idAddress") int addressId) {
+        servletContext.log("\n\ntry to delete address for customer " + custId);
+        CustomerPojo updatedCustomer = customerServiceBean.deleteCustomerAddressById(custId, addressId);
+        Response response = Response.status(updatedCustomer == null ? NOT_FOUND : OK).entity(updatedCustomer).build();
+        return response;
+    }
     
 //    @GET
 //    @Path(CUSTOMER_RESOURCE_ORDER)

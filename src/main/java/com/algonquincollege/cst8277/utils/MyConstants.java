@@ -48,7 +48,11 @@ public interface MyConstants {
     public static final String CUSTOMER_ADDRESS_RESOURCE_PATH =
             RESOURCE_PATH_ID_PATH + SLASH + CUSTOMER_ADDRESS_SUBRESOURCE_NAME;
 
-    public static final String CUSTOMER_RESOURCE_ORDER = CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH + ORDER_RESOURCE_NAME;
+    public static final String CUSTOMER_RESOURCE_ORDER = 
+            CUSTOMER_RESOURCE_NAME + RESOURCE_PATH_ID_PATH + SLASH + ORDER_RESOURCE_NAME;
+    
+    public static final String CUSTOMER_ORDER_RESOURCE_PATH = 
+            RESOURCE_PATH_ID_PATH + SLASH + ORDER_RESOURCE_NAME;
 
     //Security constants
     public static final String USER_ROLE = "USER_ROLE";

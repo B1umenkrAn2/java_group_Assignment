@@ -20,6 +20,7 @@ import java.util.*;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 //import javax.transaction.Transactional;
@@ -164,16 +165,88 @@ public class CustomerService implements Serializable {
     
     
     public List<AddressPojo> getCustomerAlladdressByCustId(int id) {
-        TypedQuery<AddressPojo> query = em.createQuery("select ap from AddressPojo ap join CustomerPojo c on c.billingAddress.id = ap.id or c.shippingAddress.id = ap.id where c.id =:id", AddressPojo.class);
+        TypedQuery<AddressPojo> query = em.createQuery("select ap from Address ap join Customer c on c.billingAddress.id = ap.id or c.shippingAddress.id = ap.id where c.id =:id", AddressPojo.class);
         query.setParameter("id", id);
         return query.getResultList();
     }
 
     public AddressPojo getCustomerAddressByAddressId(int id, int id2) {
-        TypedQuery<AddressPojo> query = em.createQuery("select ap from AddressPojo ap join CustomerPojo c on c.billingAddress.id = ap.id or c.shippingAddress.id = ap.id where c.id =:id and ap.id =:id2", AddressPojo.class);
+        TypedQuery<AddressPojo> query = em.createQuery("select ap from Address ap join Customer c on c.billingAddress.id = ap.id or c.shippingAddress.id = ap.id where c.id =:id and ap.id =:id2", AddressPojo.class);
         query.setParameter("id", id);
         query.setParameter("id2", id2);
         return query.getSingleResult();
+    }
+    
+    @Transactional
+    public CustomerPojo updateCustomerBillingAddress(int custId, AddressPojo newAddress) {
+        CustomerPojo customer = em.find(CustomerPojo.class, custId);
+        if (customer == null) {
+            return null;
+        }
+        
+        AddressPojo billingAddress = customer.getBillingAddress();
+        if (billingAddress == null) {
+            return null;
+        } else {
+            newAddress.setId(billingAddress.getId());
+            customer.setBillingAddress(newAddress);
+            return em.merge(customer);
+        }
+    }
+    
+    @Transactional
+    public CustomerPojo deleteCustomerBillingAddress(int custId) {
+        CustomerPojo customer = em.find(CustomerPojo.class, custId);
+        if (customer == null) {
+            return null;
+        }
+        
+        AddressPojo billingAddress = customer.getBillingAddress();
+        if (billingAddress == null) {
+            return null;
+        } else {
+            customer.setBillingAddress(null);
+            return em.merge(customer);
+        }
+    }
+    
+    @Transactional
+    public CustomerPojo deleteCustomerAddressById(int custId, int addressId) {
+        CustomerPojo customer = em.find(CustomerPojo.class, custId);
+        if (customer == null) {
+            return null;
+        }
+        
+        AddressPojo customerAddress = null;
+        if (customer.getBillingAddress().getId() == addressId) {
+            customerAddress = customer.getBillingAddress();
+            customer.setBillingAddress(null);
+        } else if (customer.getShippingAddress().getId() == addressId) {
+            customerAddress = customer.getShippingAddress();
+            customer.setShippingAddress(null);
+        } else {
+            return null;
+        }
+        
+        em.merge(customer); 
+        em.remove(customerAddress);
+        
+        return customer;
+    }
+    
+    @Transactional
+    public AddressPojo updateCustomerShippingAddress(int custId, AddressPojo newAddress) {
+        CustomerPojo customer = em.find(CustomerPojo.class, custId);
+        if (customer == null) {
+            return null;
+        }
+        
+        AddressPojo shippingAddress = customer.getShippingAddress();
+        if (shippingAddress == null) {
+            return null;
+        } else {
+            return em.merge(newAddress);
+        }
     }
 
     @Transactional
@@ -278,8 +351,12 @@ public class CustomerService implements Serializable {
      * @return customer with updated orders
      */
     @Transactional
-    public CustomerPojo setOrdersForCustomer(int custId, List<OrderPojo> newOrders) {
+    public CustomerPojo setOrdersForCustomer(int custId, Set<OrderPojo> newOrders) {
         CustomerPojo updatedCustomer = em.find(CustomerPojo.class, custId);
+        if (updatedCustomer == null) {
+            return null;
+        }
+        
         if (newOrders == null) {
             return null;
         }
@@ -360,7 +437,14 @@ public class CustomerService implements Serializable {
      */
     @Transactional
     public ProductPojo updateProduct(ProductPojo product) {
-        return  em.merge(product);
+        ProductPojo existedProduct = em.find(ProductPojo.class, product.getId());
+        if (existedProduct == null) {
+            return null;
+        }
+        
+        ProductPojo updatedProduct = em.merge(product);
+                
+        return  updatedProduct;
     }
 
     /**
@@ -475,8 +559,10 @@ public class CustomerService implements Serializable {
         if (existedStore == null) {
             return null;
         }
+                
+        StorePojo updatedStore = em.merge(storePojo);
         
-        return  em.merge(storePojo);
+        return updatedStore;
     }
 
     /**
